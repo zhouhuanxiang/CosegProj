@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="tests">
+      <UniqueIdentifier>{a5e4136b-2cd6-4c1e-a593-f6651247dfa8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PlaneExtraction">
+      <UniqueIdentifier>{ee867fc2-17c3-4080-a703-df691594cc7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphCut">
+      <UniqueIdentifier>{2b208555-6f1b-406e-a99d-1e5747008058}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="tests\test_sens.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_plane.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaneExtraction\PlaneData.cpp">
+      <Filter>PlaneExtraction</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaneExtraction\PlaneExtraction.cpp">
+      <Filter>PlaneExtraction</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaneExtraction\PlaneFitter.cpp">
+      <Filter>PlaneExtraction</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaneExtraction\PlaneSegment.cpp">
+      <Filter>PlaneExtraction</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphCut\GCoptimization.cpp">
+      <Filter>GraphCut</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphCut\graph.cpp">
+      <Filter>GraphCut</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphCut\LinkedBlockList.cpp">
+      <Filter>GraphCut</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphCut\maxflow.cpp">
+      <Filter>GraphCut</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_seg.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="tests\tests.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaneExtraction\Plane.h">
+      <Filter>PlaneExtraction</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaneExtraction\PlaneData.h">
+      <Filter>PlaneExtraction</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaneExtraction\PlaneFitter.h">
+      <Filter>PlaneExtraction</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaneExtraction\PlaneSegment.h">
+      <Filter>PlaneExtraction</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaneExtraction\PlaneUtil.hpp">
+      <Filter>PlaneExtraction</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphCut\block.h">
+      <Filter>GraphCut</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphCut\energy.h">
+      <Filter>GraphCut</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphCut\GCoptimization.h">
+      <Filter>GraphCut</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphCut\graph.h">
+      <Filter>GraphCut</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphCut\LinkedBlockList.h">
+      <Filter>GraphCut</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
