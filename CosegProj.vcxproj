@@ -29,6 +29,7 @@
     <ClCompile Include="PlaneExtraction\PlaneExtraction.cpp" />
     <ClCompile Include="PlaneExtraction\PlaneFitter.cpp" />
     <ClCompile Include="PlaneExtraction\PlaneSegment.cpp" />
+    <ClCompile Include="tests\test_ceres.cpp" />
     <ClCompile Include="tests\test_plane.cpp" />
     <ClCompile Include="tests\test_seg.cpp" />
     <ClCompile Include="tests\test_sens.cpp" />
@@ -100,12 +101,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir);$(SolutionDir)../../thirdparty/OpenCV/include;$(SolutionDir)../../thirdparty/mLib/include;$(SolutionDir)../../thirdparty;$(SolutionDir)../../thirdparty/glm;$(SolutionDir)../../thirdparty/Eigen;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)../../thirdparty/OpenCV/lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)../../thirdparty/ceres-solver/include;$(SolutionDir)../../thirdparty/OpenCV/include;$(SolutionDir)../../thirdparty/mLib/include;$(SolutionDir)../../thirdparty;$(SolutionDir)../../thirdparty/glm;$(SolutionDir)../../thirdparty/Eigen;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)../../thirdparty/OpenCV/lib;$(SolutionDir)../../thirdparty/ceres-solver/lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir);$(SolutionDir)../../thirdparty/OpenCV/include;$(SolutionDir)../../thirdparty/mLib/include;$(SolutionDir)../../thirdparty;$(SolutionDir)../../thirdparty/glm;$(SolutionDir)../../thirdparty/Eigen;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)../../thirdparty/OpenCV/lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)../../thirdparty/ceres-solver/include;$(SolutionDir)../../thirdparty/OpenCV/include;$(SolutionDir)../../thirdparty/mLib/include;$(SolutionDir)../../thirdparty;$(SolutionDir)../../thirdparty/glm;$(SolutionDir)../../thirdparty/Eigen;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)../../thirdparty/OpenCV/lib;$(SolutionDir)../../thirdparty/ceres-solver/lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -132,7 +133,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>opencv_core2413d.lib;opencv_highgui2413d.lib;opencv_imgproc2413d.lib;opencv_nonfree2413d.lib;opencv_features2d2413d.lib;opencv_calib3d2413d.lib;opencv_flann2413d.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libglog_staticd.lib;ceresd.lib;opencv_core2413d.lib;opencv_highgui2413d.lib;opencv_imgproc2413d.lib;opencv_nonfree2413d.lib;opencv_features2d2413d.lib;opencv_calib3d2413d.lib;opencv_flann2413d.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>echo copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
@@ -147,7 +148,14 @@ copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_ocl2413d.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_ml2413d.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_objdetect2413d.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_objdetect2413d.dll" "$(OutDir)"
-copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_calib3d2413d.dll" "$(OutDir)"</Command>
+copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_calib3d2413d.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\ceres.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\libblas.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\libgcc_s_sjlj-1.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\libgfortran-3.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\liblapack.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\libquadmath-0.dll" "$(OutDir)"
+</Command>
     </PostBuildEvent>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
@@ -186,7 +194,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>opencv_core2413.lib;opencv_highgui2413.lib;opencv_imgproc2413.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libglog_static.lib;ceres.lib;opencv_core2413.lib;opencv_highgui2413.lib;opencv_imgproc2413.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>echo copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
@@ -194,6 +202,12 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_core2413.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_highgui2413.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_imgproc2413.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Release\ceres.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\libblas.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\libgcc_s_sjlj-1.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\libgfortran-3.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\liblapack.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\libquadmath-0.dll" "$(OutDir)"
 </Command>
     </PostBuildEvent>
     <CudaCompile>
