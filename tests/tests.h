@@ -3,5 +3,5 @@
 
 void test_sens();
 void test_plane();
-
+void test_ceres();
 #endif

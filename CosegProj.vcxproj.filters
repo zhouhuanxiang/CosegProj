@@ -47,6 +47,9 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mlibutil.cpp" />
+    <ClCompile Include="tests\test_ceres.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\tests.h">
