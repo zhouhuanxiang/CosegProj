@@ -68,8 +68,8 @@ void get_svd_result(std::vector<Eigen::Vector3f>& obj,
 		obj_centroid += obj[pts[i]];
 		scene_centroid += scene[pts[i]];
 	}
-	obj_centroid = obj_centroid / obj.size();
-	scene_centroid = scene_centroid / obj.size();
+	obj_centroid = obj_centroid / pts.size();
+	scene_centroid = scene_centroid / pts.size();
 
 	Eigen::MatrixXf H = Eigen::MatrixXf::Zero(3, 3);
 	for (int i = 0; i < pts.size(); i++){
@@ -92,15 +92,15 @@ void get_svd_result(std::vector<Eigen::Vector3f>& obj,
 }
 
 
-void ransac_rigid_matrix(std::vector<Eigen::Vector3f>& obj, 
-							std::vector<Eigen::Vector3f>& scene,
-							ml::mat4f& rigid_pose){
+void get_rigid_matrix_ransac(std::vector<Eigen::Vector3f>& obj, 
+								std::vector<Eigen::Vector3f>& scene,
+								ml::mat4f& rigid_pose){
 	if (obj.size() <= 3){
 		std::cout << "bad match points";
 		return;
 	}
 	
-	int round_size = 5;
+	int round_size = 10;
 	int min_error = 10000;
 	Eigen::MatrixXf R_optimal, T_optimal;
 
@@ -113,20 +113,23 @@ void ransac_rigid_matrix(std::vector<Eigen::Vector3f>& obj,
 		get_three_random_number(random_pts, obj.size());
 		get_svd_result(obj, scene, random_pts, R, T);
 
-		// choose inlier: error < 20
+		// choose inlier: error < 20(still needs to test?)
 		std::vector<int> inlier;
 		for (int i = 0; i < obj.size(); i++){
 			Eigen::MatrixXf diff = R * obj[i] + T - scene[i];
 			float distance = (diff.transpose() * diff)(0, 0);
-			if (distance < 20){
+			if (distance < 10){
 				inlier.push_back(i);
 			}
 		}
+		std::cout << "inlier vs obj size:\n";
+		std::cout << inlier.size() << " " << obj.size() << "\n";
+		std::cout << R << "\n";
 
 		// get total error of inlier
 		// size of inlier must > 3 except for the first round 
 		get_svd_result(obj, scene, inlier, R, T);
-		if (ith_round == 0 || inlier.size() > 3){
+		if ((ith_round == 0 && inlier.size() >= 3) || inlier.size() > 3){
 			float total_error = 0;
 			for (int i = 0; i < inlier.size(); i++){
 				Eigen::MatrixXf diff = R * obj[inlier[i]] + T - scene[inlier[i]];
@@ -138,7 +141,7 @@ void ransac_rigid_matrix(std::vector<Eigen::Vector3f>& obj,
 				R_optimal = R;
 				T_optimal = T;
 				std::cout << "inlier vs obj size:\n";
-				std::cout << inlier.size() << " " << obj.size() << "\n";
+				std::cout << inlier.size() << " vs " << obj.size() << "\n";
 			}
 		}
 	}
@@ -212,12 +215,12 @@ void get_rigid_martix(ml::SensorData* input, int ith,
 		}
 	}
 
-	//cv::Mat img_matches;
-	//drawMatches(colorimg, keypoints_object, colorimg_prev, keypoints_scene,
-	//	good_matches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
-	//	std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-	//imshow("Good Matches & Object detection", img_matches);
-	//cv::waitKey(0);
+	cv::Mat img_matches;
+	drawMatches(colorimg, keypoints_object, colorimg_prev, keypoints_scene,
+		good_matches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
+		std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+	imshow("Good Matches & Object detection", img_matches);
+	cv::waitKey(0);
 
 	//-- Localize the object
 	std::vector<Eigen::Vector3f> obj;
@@ -274,7 +277,7 @@ void get_rigid_martix(ml::SensorData* input, int ith,
 		scene.push_back(scene_pt3);
 	}
 
-	ransac_rigid_matrix(obj, scene, rigid_pose);
+	get_rigid_matrix_ransac(obj, scene, rigid_pose);
 }
 
 void test_sens()
@@ -307,11 +310,11 @@ void test_sens()
 		//print_ith_frame_2_obj(input, i, depth_data, color_data, pose, intrinsic);
 
 		if (i == 1400){
-			ml::vec3<float> v0 = { 1, 0, 0 };
+			/*ml::vec3<float> v0 = { 1, 0, 0 };
 			ml::vec3<float> v1 = { 0, 1, 0 };
 			ml::vec3<float> v2 = { 0, 0, 1 };
 			ml::mat4f m4(v0, v1, v2);
-			print_ith_frame_2_obj(input, i, depth_data, color_data, m4, intrinsic);
+			print_ith_frame_2_obj(input, i, depth_data, color_data, m4, intrinsic);*/
 			continue;
 		}
 		else {
