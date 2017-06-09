@@ -132,7 +132,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>opencv_core2413d.lib;opencv_highgui2413d.lib;opencv_imgproc2413d.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core2413d.lib;opencv_highgui2413d.lib;opencv_imgproc2413d.lib;opencv_nonfree2413d.lib;opencv_features2d2413d.lib;opencv_calib3d2413d.lib;opencv_flann2413d.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>echo copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
@@ -140,7 +140,14 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_core2413d.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_highgui2413d.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_imgproc2413d.dll" "$(OutDir)"
-</Command>
+copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_nonfree2413d.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_features2d2413d.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_flann2413d.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_ocl2413d.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_ml2413d.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_objdetect2413d.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_objdetect2413d.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Debug\opencv_calib3d2413d.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>

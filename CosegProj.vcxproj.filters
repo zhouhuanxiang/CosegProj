@@ -45,6 +45,8 @@
     <ClCompile Include="tests\test_seg.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="mlibutil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\tests.h">
@@ -80,5 +82,6 @@
     <ClInclude Include="GraphCut\LinkedBlockList.h">
       <Filter>GraphCut</Filter>
     </ClInclude>
+    <ClInclude Include="mlibutil.h" />
   </ItemGroup>
 </Project>
