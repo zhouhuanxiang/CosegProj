@@ -69,13 +69,23 @@ void test_ceres()
 {
 	// If we have a given intrinsic matrix K, a set of 2d image points x_i and corresponding 3d points X_i
 	// we want to know R and T so that 0.5 * sum_i ||K(RX_i + T) - x_i||^2 is minimal
-	
+
 	// generate some data, t_* means ground truth
 	float t_fx = 540, t_fy = 540, t_cx = 320, t_cy = 240;
 	// parameters: first 3 are angle axis and the last 3 are translation
-	double param[] = { 1.0, 0.3, -0.8, 0.2, -0.1, 0.7 };
-	double t_param[6];
-	memcpy(t_param, param, sizeof(double) * 6);
+	double param[4][6];
+	double t_param[4][6];
+	for (int i = 0; i < 4; i++){
+		for (int j = 0; j < 3; j++){
+			double angle = (double)rand() / RAND_MAX * ml::PI - ml::PI / 2;
+			double tr = (double)rand() / RAND_MAX * 2 - 1;
+			t_param[i][j] = param[i][j] = angle;
+			t_param[i][j + 3] = param[i][j + 3] = tr;
+		}
+	}
+	//t_param[0][0] = param[0][0] = 0;
+	//t_param[0][1] = param[0][1] = 0;
+	//t_param[0][2] = param[0][2] = 0;
 	// K = intrinsic
 	ml::mat3d intrinsic;
 	intrinsic.setZero();
@@ -85,55 +95,88 @@ void test_ceres()
 	intrinsic(1, 2) = t_cy;
 	intrinsic(2, 2) = 1;
 	// <R,T> = extrinsic
-	auto t_extrinsic = ParamToTransform(param);
+	ml::mat4d t_extrinsic[4];
+	for (int i = 0; i < 4; i++){
+		t_extrinsic[i] = ParamToTransform(param[i]);
+	}
 	// randomly generate x_i
-	int num_samples = 20;
-	std::vector<ml::vec2d> features;
-	std::vector<ml::vec3d> objects;
-	for (int i = 0; i < num_samples; ++i) {
-		auto pt = ml::vec2d((double)rand() / RAND_MAX * 640.0, (double)rand() / RAND_MAX * 480.0);
-		float depth = ((double)rand() / RAND_MAX) * 3.0 + 1.0;
-		auto pt3d = ml::vec3d(depth * (pt.x - t_cx) / t_fx, depth * (pt.y - t_cy) / t_fy, depth);
-		pt3d = t_extrinsic.getInverse() * pt3d;
-		features.push_back(pt);
-		objects.push_back(pt3d);
+	int num_samples = 40;
+	std::vector<ml::vec2d> features[4];
+	std::vector<ml::vec3d> objects[4];
+	int lower_bound[4] = { 0, 10, 0, 30 };
+	int upper_bound[4] = { 20, 40, 40, 40 };
+	for (int sample_i = 0; sample_i < num_samples; ++sample_i) {
+		auto pt3d = ml::vec3d((double)rand() / RAND_MAX * 100 + 10, (double)rand() / RAND_MAX * 100 + 10, (double)rand() / RAND_MAX * 100 + 10);
+		for (int i = 0; i < 4; i++){
+			if (sample_i >= lower_bound[i] && sample_i <= upper_bound[i]){
+				auto tmp = intrinsic * (t_extrinsic[i] * pt3d);
+				ml::vec2d pt(tmp.x / tmp.z, tmp.y / tmp.z);
+				//if (pt[0] > 0.0 && pt[0] < 640.0 && pt[1] > 0.0 && pt[1] < 480.0){
+				features[i].push_back(pt);
+				objects[i].push_back(pt3d);
+				//}
+			}
+		}
 	}
-	printf("error from ground truth parameters: %lf\n", EvaluateError(features, objects, t_extrinsic, intrinsic));
+	// manually add some noises to the extrinsic matrices
+	ml::mat4d extrinsic[4];
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 6; j++){
+			param[i][j] += ((double)rand() / RAND_MAX - 0.5) / 50.0;
+		}
+		extrinsic[i] = ParamToTransform(param[i]);
+	}
+	// manually add some noises to the intrinsic matrix
+	intrinsic(0, 0) += ((double)rand() / RAND_MAX - 0.5) / 10000.0;
+	intrinsic(1, 1) += ((double)rand() / RAND_MAX - 0.5) / 10000.0;
+	intrinsic(0, 2) += ((double)rand() / RAND_MAX - 0.5) / 10000.0;
+	intrinsic(1, 2) += ((double)rand() / RAND_MAX - 0.5) / 10000.0;
+	// manually add some noises to the objects(3D points)
+	for (int i = 0; i < 4; i++){
+		for (int j = 0; j < objects[i].size(); j++){
+			objects[i][j].x += ((double)rand() / RAND_MAX - 0.5) / 1000.0;
+			objects[i][j].y += ((double)rand() / RAND_MAX - 0.5) / 1000.0;
+			objects[i][j].z += ((double)rand() / RAND_MAX - 0.5) / 1000.0;
+		}
+	}
 
-	// manually add some noises to the data
-	for (int i = 0; i < 6; ++i) {
-		param[i] += ((double)rand() / RAND_MAX - 0.5) / 50.0;
+	for (int i = 0; i < 4; i++){
+		printf("error from ground truth parameters after noise added %d: %lf\n", i, EvaluateError(features[i], objects[i], extrinsic[i], intrinsic));
 	}
-	auto extrinsic = ParamToTransform(param);
-	printf("forward error from initial parameters: %lf\n", EvaluateError(features, objects, extrinsic, intrinsic));
-	printf("backward relative error:\n");
-	for (int i = 0; i < 6; ++i) {
-		printf("%lf ", abs((param[i] - t_param[i]) / t_param[i]));
+	printf("\nbackward relative error befrore optimization:\n");
+	for (int i = 0; i < 4; i++){
+		for (int j = 0; j < 6; j++) {
+			printf("%lf ", abs((param[i][j] - t_param[i][j]) / t_param[i][j]));
+		}
+		printf("\n");
 	}
-	printf("\n");
-	printf("\n\n============================ Optimization ============================\n");
+
+	//printf("\n\n============================ Optimization ============================\n");
 	// lets start the optimization!!!!!!
 	// lets create residual terms
 	ceres::Problem problem;
-	for (int i = 0; i < num_samples; ++i) {
-		auto* costFunc = MyErrorFunc::Create(t_fx, t_fy, t_cx, t_cy, features[i], objects[i]);
-		problem.AddResidualBlock(costFunc, 0, param, param + 3);
+	for (int i = 0; i < 4; i++){
+		for (int j = 0; j < objects[i].size(); ++j) {
+			auto* costFunc = MyErrorFunc::Create(t_fx, t_fy, t_cx, t_cy, features[i][j], objects[i][j]);
+			problem.AddResidualBlock(costFunc, 0, param[i], param[i] + 3);
+		}
 	}
 	ceres::Solver::Options options;
 	options.linear_solver_type = ceres::SPARSE_SCHUR;
-	options.minimizer_progress_to_stdout = true;
+	//options.minimizer_progress_to_stdout = true;
 	options.max_num_iterations = 50;
 	ceres::Solver::Summary summary;
 	ceres::Solve(options, &problem, &summary);
 	std::cout << summary.FullReport() << "\n";
-	printf("============================ Optimization Finished ============================\n\n\n");
+	//printf("============================ Optimization Finished ============================\n\n\n");
 
-	printf("For debug, you can verify your self-computed initial error is consistent the ceres-solver's initial value:\n");
-	printf("%lf = %lf\n", summary.initial_cost, EvaluateError(features, objects, extrinsic, intrinsic));
-	// compare the estimated value with the ground truth
-	printf("backward relative error:\n");
-	for (int i = 0; i < 6; ++i) {
-		printf("%lf ", abs((param[i] - t_param[i]) / t_param[i]));
+	printf("\nbackward relative error after optimization:\n");
+	for (int i = 0; i < 4; i++){
+		for (int j = 0; j < 6; j++) {
+			printf("%lf ", abs((param[i][j] - t_param[i][j]) / t_param[i][j]));
+		}
+		printf("\n");
 	}
-	printf("\n");
+
+	system("pause");
 }

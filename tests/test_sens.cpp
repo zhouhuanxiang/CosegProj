@@ -16,7 +16,7 @@ void int2str(const int &int_temp, std::string &string_temp)
 
 void print_ith_frame_2_obj(ml::SensorData* input, int ith, 
 							unsigned short* depth_data, ml::vec3uc* color_data, 
-							ml::mat4f& pose, ml::mat4f& intrinsic){
+							ml::mat4d& pose, ml::mat4d& intrinsic){
 	std::ofstream ofs;
 	std::string filename;
 	int2str(ith, filename);
@@ -26,11 +26,11 @@ void print_ith_frame_2_obj(ml::SensorData* input, int ith,
 	for (int y = 0; y < input->m_colorHeight; y++){
 		for (int x = 0; x < input->m_colorWidth; x++){
 			ml::vec3uc rgb = (ml::vec3uc) *(color_data + x + y*input->m_colorWidth);
-			float	     Z = (float)*(depth_data + x + y*input->m_colorWidth);
-			float        X = Z * (x - intrinsic(0, 2)) / intrinsic(0, 0);
-			float        Y = Z * (y - intrinsic(1, 2)) / intrinsic(1, 1);
-			ml::vec4f coord_C(X, Y, Z, 1);
-			ml::vec4f coord_W = pose * coord_C;
+			double	      Z = (double)*(depth_data + x + y*input->m_colorWidth);
+			double        X = Z * (x - intrinsic(0, 2)) / intrinsic(0, 0);
+			double        Y = Z * (y - intrinsic(1, 2)) / intrinsic(1, 1);
+			ml::vec4d coord_C(X, Y, Z, 1);
+			ml::vec4d coord_W = pose * coord_C;
 			ofs << "v " << coord_W[0] << " " << coord_W[1] << " " << coord_W[2] << " "
 				<< rgb[0] / 256.0 << " " << rgb[1] / 256.0 << " " << rgb[2] / 256.0 << "\n";
 		}
@@ -56,12 +56,12 @@ void get_three_random_number(std::vector<int>& addr, int size){
 }
 
 // return R T
-void get_svd_result(std::vector<Eigen::Vector3f>& obj,
-						std::vector<Eigen::Vector3f>& scene, 
+void get_svd_result(std::vector<Eigen::Vector3d>& obj,
+						std::vector<Eigen::Vector3d>& scene, 
 						std::vector<int>& pts,
-						Eigen::MatrixXf& R,
-						Eigen::MatrixXf& T){
-	Eigen::Vector3f obj_centroid, scene_centroid;
+						Eigen::MatrixXd& R,
+						Eigen::MatrixXd& T){
+	Eigen::Vector3d obj_centroid, scene_centroid;
 	obj_centroid << 0, 0, 0;
 	scene_centroid << 0, 0, 0;
 	for (int i = 0; i < pts.size(); i++){
@@ -71,17 +71,17 @@ void get_svd_result(std::vector<Eigen::Vector3f>& obj,
 	obj_centroid = obj_centroid / pts.size();
 	scene_centroid = scene_centroid / pts.size();
 
-	Eigen::MatrixXf H = Eigen::MatrixXf::Zero(3, 3);
+	Eigen::MatrixXd H = Eigen::MatrixXd::Zero(3, 3);
 	for (int i = 0; i < pts.size(); i++){
 		H += (obj[pts[i]] - obj_centroid)*(scene[pts[i]].transpose() - scene_centroid.transpose());
 	}
-	Eigen::JacobiSVD<Eigen::MatrixXf> svd(H, Eigen::ComputeThinU | Eigen::ComputeThinV);
+	Eigen::JacobiSVD<Eigen::MatrixXd> svd(H, Eigen::ComputeThinU | Eigen::ComputeThinV);
 	/*if (svd.singularValues()[0] > 1){
 	std::cout << "bad eigen value";
 	return;
 	}*/
-	Eigen::MatrixXf U = svd.matrixU();
-	Eigen::MatrixXf V = svd.matrixV();
+	Eigen::MatrixXd U = svd.matrixU();
+	Eigen::MatrixXd V = svd.matrixV();
 	R = V * U.transpose();
 	if (R.determinant() < 0){
 		R(0, 2) *= (-1);
@@ -89,24 +89,29 @@ void get_svd_result(std::vector<Eigen::Vector3f>& obj,
 		R(2, 2) *= (-1);
 	}
 	T = (-1)*R*obj_centroid + scene_centroid;
+
+	//std::cout << pts[0] << " " << pts[1] << " " << pts[2] << " " << obj.size();
+	//std::cout << R*obj[pts[0]] + T - scene[pts[0]] <<"#";
+	//std::cout << R*obj[pts[1]] + T - scene[pts[1]] << "#";
+	//std::cout << R*obj[pts[2]] + T - scene[pts[2]] << "\n";
 }
 
 
-void get_rigid_matrix_ransac(std::vector<Eigen::Vector3f>& obj, 
-								std::vector<Eigen::Vector3f>& scene,
-								ml::mat4f& rigid_pose){
+void get_rigid_matrix_ransac(std::vector<Eigen::Vector3d>& obj, 
+								std::vector<Eigen::Vector3d>& scene,
+								ml::mat4d& rigid_pose){
 	if (obj.size() <= 3){
 		std::cout << "bad match points";
 		return;
 	}
 	
-	int round_size = 10;
+	int round_size = 1000;
 	int min_error = 10000;
-	Eigen::MatrixXf R_optimal, T_optimal;
+	Eigen::MatrixXd R_optimal, T_optimal;
 
 	for (int ith_round = 0; ith_round < round_size; ith_round++){
-		Eigen::MatrixXf R;
-		Eigen::MatrixXf T;
+		Eigen::MatrixXd R;
+		Eigen::MatrixXd T;
 		std::vector<int> random_pts(3);
 
 		// random choose 3 pts and get corresponding R and T
@@ -116,24 +121,24 @@ void get_rigid_matrix_ransac(std::vector<Eigen::Vector3f>& obj,
 		// choose inlier: error < 20(still needs to test?)
 		std::vector<int> inlier;
 		for (int i = 0; i < obj.size(); i++){
-			Eigen::MatrixXf diff = R * obj[i] + T - scene[i];
-			float distance = (diff.transpose() * diff)(0, 0);
-			if (distance < 10){
+			Eigen::MatrixXd diff = R * obj[i] + T - scene[i];
+			double distance = (diff.transpose() * diff)(0, 0);
+			if (distance < 50){
 				inlier.push_back(i);
 			}
 		}
-		std::cout << "inlier vs obj size:\n";
-		std::cout << inlier.size() << " " << obj.size() << "\n";
-		std::cout << R << "\n";
+		//std::cout << "inlier vs obj size:\n";
+		//std::cout << inlier.size() << " " << obj.size() << "\n";
+		//std::cout << R << "\n";
 
 		// get total error of inlier
 		// size of inlier must > 3 except for the first round 
 		get_svd_result(obj, scene, inlier, R, T);
 		if ((ith_round == 0 && inlier.size() >= 3) || inlier.size() > 3){
-			float total_error = 0;
+			double total_error = 0;
 			for (int i = 0; i < inlier.size(); i++){
-				Eigen::MatrixXf diff = R * obj[inlier[i]] + T - scene[inlier[i]];
-				float distance = (diff.transpose() * diff)(0, 0);
+				Eigen::MatrixXd diff = R * obj[inlier[i]] + T - scene[inlier[i]];
+				double distance = (diff.transpose() * diff)(0, 0);
 				total_error += distance;
 			}
 			if (total_error < min_error){
@@ -142,6 +147,8 @@ void get_rigid_matrix_ransac(std::vector<Eigen::Vector3f>& obj,
 				T_optimal = T;
 				std::cout << "inlier vs obj size:\n";
 				std::cout << inlier.size() << " vs " << obj.size() << "\n";
+				if (ith_round > 20)
+					break;
 			}
 		}
 	}
@@ -161,7 +168,7 @@ void get_rigid_matrix_ransac(std::vector<Eigen::Vector3f>& obj,
 // 2017/6/8
 void get_rigid_martix(ml::SensorData* input, int ith,
 						unsigned short* depth_data, ml::vec3uc* color_data,
-						ml::mat4f& rigid_pose, ml::mat4f& intrinsic){
+						ml::mat4d& rigid_pose, ml::mat4d& intrinsic){
 	if (ith <= 0)
 		return;
 	ml::vec3uc* color_data_prev     = input->decompressColorAlloc(ith - 1);
@@ -223,18 +230,18 @@ void get_rigid_martix(ml::SensorData* input, int ith,
 	cv::waitKey(0);
 
 	//-- Localize the object
-	std::vector<Eigen::Vector3f> obj;
-	std::vector<Eigen::Vector3f> scene;
+	std::vector<Eigen::Vector3d> obj;
+	std::vector<Eigen::Vector3d> scene;
 
-	//float	       Z = (float)*(depth_data + x + y*input->m_colorWidth);
-	//float        X = Z * (x - intrinsic(0, 2)) / intrinsic(0, 0);
-	//float        Y = Z * (y - intrinsic(1, 2)) / intrinsic(1, 1);
+	//double	       Z = (double)*(depth_data + x + y*input->m_colorWidth);
+	//double        X = Z * (x - intrinsic(0, 2)) / intrinsic(0, 0);
+	//double        Y = Z * (y - intrinsic(1, 2)) / intrinsic(1, 1);
 
 	for (int i = 0; i < good_matches.size(); i++)
 	{
 		//-- Get the keypoints from the good matches
-		Eigen::Vector3f obj_pt3, scene_pt3;
-		cv::Point2f obj_pt2, scene_pt2;
+		Eigen::Vector3d obj_pt3, scene_pt3;
+		cv::Point2d obj_pt2, scene_pt2;
 		obj_pt2   = keypoints_object[good_matches[i].queryIdx].pt;
 		scene_pt2 = keypoints_scene[good_matches[i].trainIdx].pt;
 
@@ -244,10 +251,10 @@ void get_rigid_martix(ml::SensorData* input, int ith,
 		int ymin = (int)obj_pt2.y;
 		int xmax = (int)(obj_pt2.x + 1);
 		int ymax = (int)(obj_pt2.y + 1);
-		float d1 = (float)*(depth_data + xmin + ymin*input->m_colorWidth);
-		float d2 = (float)*(depth_data + xmax + ymin*input->m_colorWidth);
-		float d3 = (float)*(depth_data + xmin + ymax*input->m_colorWidth);
-		float d4 = (float)*(depth_data + xmax + ymax*input->m_colorWidth);
+		double d1 = (double)*(depth_data + xmin + ymin*input->m_colorWidth);
+		double d2 = (double)*(depth_data + xmax + ymin*input->m_colorWidth);
+		double d3 = (double)*(depth_data + xmin + ymax*input->m_colorWidth);
+		double d4 = (double)*(depth_data + xmax + ymax*input->m_colorWidth);
 		obj_pt3[2] = (d1*(-obj_pt2.x - obj_pt2.y + xmax + ymax) +
 			d2*(obj_pt2.x - obj_pt2.y - xmin + ymax) +
 			d3*(-obj_pt2.x + obj_pt2.y + xmax - ymin) +
@@ -255,15 +262,15 @@ void get_rigid_martix(ml::SensorData* input, int ith,
 		obj_pt3[0] = obj_pt3[2] * (obj_pt2.x - intrinsic(0, 2)) / intrinsic(0, 0);
 		obj_pt3[1] = obj_pt3[2] * (obj_pt2.y - intrinsic(1, 2)) / intrinsic(1, 1);
 
-		//scene_pt3.z = (float)*(depth_data_prev + ((int)(scene_pt2.x+0.5) + (int)(scene_pt2.y+0.5)*input->m_colorWidth));
+		//scene_pt3.z = (double)*(depth_data_prev + ((int)(scene_pt2.x+0.5) + (int)(scene_pt2.y+0.5)*input->m_colorWidth));
 		xmin = (int)scene_pt2.x;
 		ymin = (int)scene_pt2.y;
 		xmax = (int)(scene_pt2.x + 1);
 		ymax = (int)(scene_pt2.y + 1);
-		d1 = (float)*(depth_data_prev + xmin + ymin*input->m_colorWidth); 
-		d2 = (float)*(depth_data_prev + xmax + ymin*input->m_colorWidth);
-		d3 = (float)*(depth_data_prev + xmin + ymax*input->m_colorWidth);
-		d4 = (float)*(depth_data_prev + xmax + ymax*input->m_colorWidth);
+		d1 = (double)*(depth_data_prev + xmin + ymin*input->m_colorWidth); 
+		d2 = (double)*(depth_data_prev + xmax + ymin*input->m_colorWidth);
+		d3 = (double)*(depth_data_prev + xmin + ymax*input->m_colorWidth);
+		d4 = (double)*(depth_data_prev + xmax + ymax*input->m_colorWidth);
 		scene_pt3[2] = (d1*(-obj_pt2.x - obj_pt2.y + xmax + ymax) +
 			d2*(obj_pt2.x - obj_pt2.y - xmin + ymax) +
 			d3*(-obj_pt2.x + obj_pt2.y + xmax - ymin) +
@@ -295,7 +302,7 @@ void test_sens()
 	std::cout << input->m_frames.size() << "\n";
 	// Frame Information¡®
 
-	for (int i = 1400; i < input->m_frames.size(); ++i) {
+	for (int i = 2400; i < input->m_frames.size(); ++i) {
 		std::cout << i << "\n";
 		// decompress depth and color data
 		// depth (mm)
@@ -303,17 +310,17 @@ void test_sens()
 		// color (rgb [0,255],[0,255],[0,255])
 		ml::vec3uc* color_data = input->decompressColorAlloc(i);
 		// extrinsic (camera2world)
-		ml::mat4f pose = input->m_frames[i].getCameraToWorld();
-		ml::mat4f intrinsic = input->m_calibrationColor.m_intrinsic;
-		ml::mat4f rigid_pose;
+		ml::mat4d pose = input->m_frames[i].getCameraToWorld();
+		ml::mat4d intrinsic = input->m_calibrationColor.m_intrinsic;
+		ml::mat4d rigid_pose;
 		//get_homography_martix(input, i, depth_data, color_data, homography_pose);
 		//print_ith_frame_2_obj(input, i, depth_data, color_data, pose, intrinsic);
 
-		if (i == 1400){
-			/*ml::vec3<float> v0 = { 1, 0, 0 };
-			ml::vec3<float> v1 = { 0, 1, 0 };
-			ml::vec3<float> v2 = { 0, 0, 1 };
-			ml::mat4f m4(v0, v1, v2);
+		if (i == 2400){
+			/*ml::vec3<double> v0 = { 1, 0, 0 };
+			ml::vec3<double> v1 = { 0, 1, 0 };
+			ml::vec3<double> v2 = { 0, 0, 1 };
+			ml::mat4d m4(v0, v1, v2);
 			print_ith_frame_2_obj(input, i, depth_data, color_data, m4, intrinsic);*/
 			continue;
 		}
