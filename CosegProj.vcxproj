@@ -33,6 +33,7 @@
     <ClCompile Include="tests\test_plane.cpp" />
     <ClCompile Include="tests\test_seg.cpp" />
     <ClCompile Include="tests\test_sens.cpp" />
+    <ClCompile Include="tests\test_sens_icp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GraphCut\block.h" />

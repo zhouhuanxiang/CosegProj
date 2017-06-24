@@ -50,6 +50,9 @@
     <ClCompile Include="tests\test_ceres.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="tests\test_sens_icp.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\tests.h">

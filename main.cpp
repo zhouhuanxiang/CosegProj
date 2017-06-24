@@ -4,6 +4,6 @@ int main()
 {
 	//test_sens();
 	//test_plane();
-	test_ceres();
+	test_sens_icp();
 	return 0;
 }
