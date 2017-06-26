@@ -1,18 +1,20 @@
+#include <queue>
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
 #include "mlibutil.h"
 
-#define THRESHOLD 50
+#define THRESHOLD 20
 
 int get_integer_part(double x){
 	return static_cast<int>(x);
 }
 
 void print_infinitesimal_part(double x){
+	std::cout << "#inf#" << "\n";
 }
 
 void print_scalar_part(double x){
-	std::cout << "##" << x << "\n";
+	std::cout << "#sca#" << x << "\n";
 }
 
 template<typename SCALAR, int N>
@@ -22,12 +24,12 @@ int get_integer_part(const ceres::Jet<SCALAR, N>& x){
 
 template<typename SCALAR, int N>
 void print_infinitesimal_part(const ceres::Jet<SCALAR, N>& x){
-	std::cout << "##" << x.v << "\n";
+	std::cout << "#inf#" << x.v << "\n";
 }
 
 template<typename SCALAR, int N>
 void print_scalar_part(const ceres::Jet<SCALAR, N>& x){
-	std::cout << "##" << x.a << "\n";
+	std::cout << "#sca#" << x.a << "\n";
 }
 
 template <class T>
@@ -68,6 +70,7 @@ T icp_cost(const T* const R, const T* const tr, unsigned short* depth_data_first
 		+ (rl * (tone - wx) + rr * wx) * wy;
 	T residual = depth - pt1_3d[2];
 	//print_scalar_part(residual);
+	//print_infinitesimal_part(residual);
 	return residual;
 }
 
@@ -111,60 +114,70 @@ public:
 	}
 };
 
-//ml::mat4d ParamToTransform1(double* param) {
-//	double rotation_R[9];
-//	ceres::AngleAxisToRotationMatrix(param, rotation_R);
-//	ml::mat4d t_extrinsic;
-//	for (int i = 0; i < 3; ++i) {
-//		for (int j = 0; j < 3; ++j) {
-//			//Note: ceres-rotationMatrix is the transpose of opencv Matrix, or ml Matrix
-//			t_extrinsic(i, j) = rotation_R[j * 3 + i];
-//		}
-//		t_extrinsic(i, 3) = param[3 + i];
-//	}
-//	t_extrinsic(3, 3) = 1;
-//	return t_extrinsic;
-//}
-//
-//void int2str1(const int &int_temp, std::string &string_temp)
-//{
-//	std::stringstream stream;
-//	stream << int_temp;
-//	string_temp = stream.str();
-//}
-//
-//void print_ith_frame_2_obj1(ml::SensorData* input, int ith,
-//	unsigned short* depth_data, ml::vec3uc* color_data,
-//	ml::mat4d& pose, ml::mat4d& intrinsic){
-//	std::ofstream ofs;
-//	std::string filename;
-//	int2str1(ith, filename);
-//	filename.append("th.obj");
-//	ofs.open(filename);
-//
-//	for (int y = 0; y < input->m_colorHeight; y++){
-//		for (int x = 0; x < input->m_colorWidth; x++){
-//			ml::vec3uc rgb = (ml::vec3uc) *(color_data + x + y*input->m_colorWidth);
-//			double	      Z = (double)*(depth_data + x + y*input->m_colorWidth);
-//			double        X = Z * (x - intrinsic(0, 2)) / intrinsic(0, 0);
-//			double        Y = Z * (y - intrinsic(1, 2)) / intrinsic(1, 1);
-//			ml::vec4d coord_C(X, Y, Z, 1);
-//			ml::vec4d coord_W = pose * coord_C;
-//			ofs << "v " << coord_W[0] << " " << coord_W[1] << " " << coord_W[2] << " "
-//				<< rgb[0] / 256.0 << " " << rgb[1] / 256.0 << " " << rgb[2] / 256.0 << "\n";
-//		}
-//	}
-//
-//	ofs.close();
-//}
+ml::mat4d ParamToTransform1(double* param) {
+	double rotation_R[9];
+	ceres::AngleAxisToRotationMatrix(param, rotation_R);
+	ml::mat4d t_extrinsic;
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			//Note: ceres-rotationMatrix is the transpose of opencv Matrix, or ml Matrix
+			t_extrinsic(i, j) = rotation_R[j * 3 + i];
+		}
+		t_extrinsic(i, 3) = param[3 + i];
+	}
+	t_extrinsic(3, 3) = 1;
+	return t_extrinsic;
+}
+
+void int2str1(const int &int_temp, std::string &string_temp)
+{
+	std::stringstream stream;
+	stream << int_temp;
+	string_temp = stream.str();
+}
+
+void print_ith_frame_2_obj1(ml::SensorData* input, int ith,
+	unsigned short* depth_data, ml::vec3uc* color_data,
+	ml::mat4d& pose, ml::mat4d& intrinsic){
+	std::ofstream ofs;
+	std::string filename;
+	int2str1(ith, filename);
+	filename.append("th.obj");
+	ofs.open(filename);
+
+	for (int y = 0; y < input->m_colorHeight; y++){
+		for (int x = 0; x < input->m_colorWidth; x++){
+			ml::vec3uc rgb = (ml::vec3uc) *(color_data + x + y*input->m_colorWidth);
+			double	      Z = (double)*(depth_data + x + y*input->m_colorWidth);
+			double        X = Z * (x - intrinsic(0, 2)) / intrinsic(0, 0);
+			double        Y = Z * (y - intrinsic(1, 2)) / intrinsic(1, 1);
+			ml::vec4d coord_C(X, Y, Z, 1);
+			ml::vec4d coord_W = pose * coord_C;
+			ofs << "v " << coord_W[0] << " " << coord_W[1] << " " << coord_W[2] << " "
+				<< rgb[0] / 256.0 << " " << rgb[1] / 256.0 << " " << rgb[2] / 256.0 << "\n";
+		}
+	}
+
+	ofs.close();
+}
+
+template <class T>
+class mycomparison
+{
+public:
+	bool operator() (const T& lhs, const T&rhs) const {
+		return abs(lhs.second) > abs(rhs.second);
+	}
+};
+
 
 void test_sens_icp()
 {
 	// Load RGB-D Data
 	ml::SensorData* input = new ml::SensorData("../../data/test.sens");
 
-	int first_frame = 2000;
-	int second_frame = first_frame + 20;
+	int first_frame = 1000;
+	int second_frame = first_frame + 1;
 	// decompress depth and color data of two frame
 	unsigned short* depth_data_first = input->decompressDepthAlloc(first_frame);
 	unsigned short* depth_data_second = input->decompressDepthAlloc(second_frame);
@@ -174,6 +187,22 @@ void test_sens_icp()
 	ml::mat4d intrinsic = input->m_calibrationColor.m_intrinsic;
 	// parameters: first 3 are angle axis and the last 3 are translation
 	double param[] = { 0, 0, 0, 0, 0, 0 };
+
+	//double rotation_R[9];
+	//ml::mat4d extrinsic1 = input->m_frames[first_frame].getCameraToWorld();
+	//ml::mat4d extrinsic2 = input->m_frames[second_frame].getCameraToWorld();
+	//ml::mat4d extrinsic21 = extrinsic1.getInverse() * extrinsic2;
+	//for (int i = 0; i < 3; ++i) {
+	//	for (int j = 0; j < 3; ++j) {
+	//		//Note: ceres-rotationMatrix is the transpose of opencv Matrix, or ml Matrix
+	//		//t_extrinsic(i, j) = rotation_R[j * 3 + i];
+	//		rotation_R[j * 3 + i] = extrinsic21(i, j);
+ //		}
+	//	//t_extrinsic(i, 3) = param[3 + i];
+	//	param[3 + i] = extrinsic21(i, 3);
+	//}
+	//ceres::RotationMatrixToAngleAxis(rotation_R, param);
+
 	double min_final_cost = 100000000000;
 
 	ceres::Solver::Options options;
@@ -185,13 +214,16 @@ void test_sens_icp()
 	TerminateWhenSuccessCallback callback;
 	options.callbacks.push_back(&callback);
 
+	bool is_first_iteration = true;
+	int max_residual;
 	do{
-		int residual_count = 50000;
+		std::cout << "====== new round ======\n";
 		int sample_step = 5;
+		std::priority_queue<std::pair<ceres::CostFunction*, double>, std::vector<std::pair<ceres::CostFunction*, double> >, mycomparison<std::pair<ceres::CostFunction*, double> > > cost_function_queue;
 		ceres::Problem problem;
-		for (int y = 10; y < depthHeight - 10;){
-			for (int x = 10; x < depthWidth - 10;){
-				if ((unsigned short)*(depth_data_second + x + y * depthWidth) < 1){
+		for (int y = 5; y < depthHeight - 5;){
+			for (int x = 5; x < depthWidth - 5;){
+				if ((unsigned short)*(depth_data_second + x + y * depthWidth) < 1) {
 					x += sample_step;
 					continue;
 				}
@@ -201,22 +233,29 @@ void test_sens_icp()
 				if (pt_cost < THRESHOLD){
 					auto* costFunc = IcpErrorFunc::Create(depth_data_first, depth_data_second, depthWidth, depthHeight,
 						x, y, intrinsic(0, 0), intrinsic(1, 1), intrinsic(0, 2), intrinsic(1, 2));
-					problem.AddResidualBlock(costFunc, 0, param, param + 3);
-					--residual_count;
+					cost_function_queue.push(std::make_pair(costFunc, pt_cost));
 				}
 				x += sample_step;
-				if (residual_count < 0)
-					break;
 			}
 			y += sample_step;
-			if (residual_count < 0)
-				break;
 		}
+		if (is_first_iteration){
+			is_first_iteration = false;
+			max_residual = cost_function_queue.size() - 1;
+		}
+		for (int i = 0; i < max_residual; i++){
+			if (cost_function_queue.empty())
+				break;
+			auto* costFunc = cost_function_queue.top().first;
+			cost_function_queue.pop();
+			problem.AddResidualBlock(costFunc, 0, param, param + 3);
+		}
+
 		ceres::Solver::Summary summary;
 		ceres::Solve(options, &problem, &summary);
 		std::cout << "problem.NumResiduals: " << problem.NumResiduals() << "\n";
 		std::cout << "summary.finalcost:    " << summary.final_cost     << "\n\n";
-		if (abs(min_final_cost - summary.final_cost) / min_final_cost < 0.01){
+		if (abs(min_final_cost - summary.final_cost) < 0.01 * min_final_cost || summary.final_cost > min_final_cost){
 			break;
 		}
 		min_final_cost = summary.final_cost;
@@ -226,7 +265,7 @@ void test_sens_icp()
 	for (int i = 0; i < 6; i++){
 		std::cout << "##" << param[i] << "\n";
 	}
-	/*ml::vec3<double> v0 = { 1, 0, 0 };
+	ml::vec3<double> v0 = { 1, 0, 0 };
 	ml::vec3<double> v1 = { 0, 1, 0 };
 	ml::vec3<double> v2 = { 0, 0, 1 };
 	ml::mat4d m4(v0, v1, v2);
@@ -235,7 +274,7 @@ void test_sens_icp()
 	print_ith_frame_2_obj1(input, first_frame, depth_data_first, color_data_first, m4, intrinsic);
 	print_ith_frame_2_obj1(input, second_frame, depth_data_second, color_data_second, ParamToTransform1(param), intrinsic);
 	::free(color_data_first);
-	::free(color_data_second);*/
+	::free(color_data_second);
 
 	// free memory
 	::free(depth_data_first);
