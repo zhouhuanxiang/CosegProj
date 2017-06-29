@@ -2,8 +2,9 @@
 
 int main()
 {
-	//test_sens();
+	test_icp();
 	//test_plane();
-	test_sens_icp();
+//	test_ceres();
+//	test_sens_icp();
 	return 0;
 }
