@@ -6,6 +6,8 @@
 #include <string>
 #include <sstream>
 #include <random>
+#include "imgproc\filter.h"
+#include "..\ICP\ICP.h"
 
 void int2str(const int &int_temp, std::string &string_temp)
 {
@@ -14,9 +16,9 @@ void int2str(const int &int_temp, std::string &string_temp)
 	string_temp = stream.str();
 }
 
-void print_ith_frame_2_obj(ml::SensorData* input, int ith, 
-							unsigned short* depth_data, ml::vec3uc* color_data, 
-							ml::mat4d& pose, ml::mat4d& intrinsic){
+void print_ith_frame_2_obj(ml::SensorData* input, int ith,
+	unsigned short* depth_data, ml::vec3uc* color_data,
+	ml::mat4d& pose, ml::mat4d& intrinsic){
 	std::ofstream ofs;
 	std::string filename;
 	int2str(ith, filename);
@@ -42,7 +44,7 @@ void print_ith_frame_2_obj(ml::SensorData* input, int ith,
 void get_three_random_number(std::vector<int>& addr, int size){
 	std::mt19937 rng;
 	rng.seed(std::random_device()());
-	std::uniform_int_distribution<std::mt19937::result_type> dist(0, size-1);
+	std::uniform_int_distribution<std::mt19937::result_type> dist(0, size - 1);
 
 	addr[0] = dist(rng) % size;
 
@@ -57,10 +59,10 @@ void get_three_random_number(std::vector<int>& addr, int size){
 
 // return R T
 void get_svd_result(std::vector<Eigen::Vector3d>& obj,
-						std::vector<Eigen::Vector3d>& scene, 
-						std::vector<int>& pts,
-						Eigen::MatrixXd& R,
-						Eigen::MatrixXd& T){
+	std::vector<Eigen::Vector3d>& scene,
+	std::vector<int>& pts,
+	Eigen::MatrixXd& R,
+	Eigen::MatrixXd& T){
 	Eigen::Vector3d obj_centroid, scene_centroid;
 	obj_centroid << 0, 0, 0;
 	scene_centroid << 0, 0, 0;
@@ -97,14 +99,14 @@ void get_svd_result(std::vector<Eigen::Vector3d>& obj,
 }
 
 
-void get_rigid_matrix_ransac(std::vector<Eigen::Vector3d>& obj, 
-								std::vector<Eigen::Vector3d>& scene,
-								ml::mat4d& rigid_pose){
+void get_rigid_matrix_ransac(std::vector<Eigen::Vector3d>& obj,
+	std::vector<Eigen::Vector3d>& scene,
+	ml::mat4d& rigid_pose){
 	if (obj.size() <= 3){
 		std::cout << "bad match points";
 		return;
 	}
-	
+
 	int round_size = 1000;
 	int min_error = 10000;
 	Eigen::MatrixXd R_optimal, T_optimal;
@@ -167,11 +169,11 @@ void get_rigid_matrix_ransac(std::vector<Eigen::Vector3d>& obj,
 // http://docs.opencv.org/2.4/doc/tutorials/features2d/feature_homography/feature_homography.html#feature-homography
 // 2017/6/8
 void get_rigid_martix(ml::SensorData* input, int ith,
-						unsigned short* depth_data, ml::vec3uc* color_data,
-						ml::mat4d& rigid_pose, ml::mat4d& intrinsic){
+	unsigned short* depth_data, ml::vec3uc* color_data,
+	ml::mat4d& rigid_pose, ml::mat4d& intrinsic){
 	if (ith <= 0)
 		return;
-	ml::vec3uc* color_data_prev     = input->decompressColorAlloc(ith - 1);
+	ml::vec3uc* color_data_prev = input->decompressColorAlloc(ith - 1);
 	unsigned short* depth_data_prev = input->decompressDepthAlloc(ith - 1);
 	cv::Mat colorimg(input->m_colorHeight, input->m_colorWidth, CV_8UC3, color_data);
 	cv::Mat colorimg_prev(input->m_colorHeight, input->m_colorWidth, CV_8UC3, color_data_prev);
@@ -242,11 +244,11 @@ void get_rigid_martix(ml::SensorData* input, int ith,
 		//-- Get the keypoints from the good matches
 		Eigen::Vector3d obj_pt3, scene_pt3;
 		cv::Point2d obj_pt2, scene_pt2;
-		obj_pt2   = keypoints_object[good_matches[i].queryIdx].pt;
+		obj_pt2 = keypoints_object[good_matches[i].queryIdx].pt;
 		scene_pt2 = keypoints_scene[good_matches[i].trainIdx].pt;
 
 		//std::cout << obj_pt2 << " ## " << scene_pt2 << "\n";
-		
+
 		int xmin = (int)obj_pt2.x;
 		int ymin = (int)obj_pt2.y;
 		int xmax = (int)(obj_pt2.x + 1);
@@ -267,7 +269,7 @@ void get_rigid_martix(ml::SensorData* input, int ith,
 		ymin = (int)scene_pt2.y;
 		xmax = (int)(scene_pt2.x + 1);
 		ymax = (int)(scene_pt2.y + 1);
-		d1 = (double)*(depth_data_prev + xmin + ymin*input->m_colorWidth); 
+		d1 = (double)*(depth_data_prev + xmin + ymin*input->m_colorWidth);
 		d2 = (double)*(depth_data_prev + xmax + ymin*input->m_colorWidth);
 		d3 = (double)*(depth_data_prev + xmin + ymax*input->m_colorWidth);
 		d4 = (double)*(depth_data_prev + xmax + ymax*input->m_colorWidth);
@@ -301,8 +303,10 @@ void test_sens()
 	std::cout << "Frame number:\n";
 	std::cout << input->m_frames.size() << "\n";
 	// Frame Information¡®
-
-	for (int i = 2400; i < input->m_frames.size(); ++i) {
+	cv::Mat prev_points, prev_normal;
+	std::vector<ml::mat4d> poses;
+	int start_frame = 80;
+	for (int i = start_frame; i < input->m_frames.size(); ++i) {
 		std::cout << i << "\n";
 		// decompress depth and color data
 		// depth (mm)
@@ -316,19 +320,6 @@ void test_sens()
 		//get_homography_martix(input, i, depth_data, color_data, homography_pose);
 		//print_ith_frame_2_obj(input, i, depth_data, color_data, pose, intrinsic);
 
-		if (i == 2400){
-			/*ml::vec3<double> v0 = { 1, 0, 0 };
-			ml::vec3<double> v1 = { 0, 1, 0 };
-			ml::vec3<double> v2 = { 0, 0, 1 };
-			ml::mat4d m4(v0, v1, v2);
-			print_ith_frame_2_obj(input, i, depth_data, color_data, m4, intrinsic);*/
-			continue;
-		}
-		else {
-			get_rigid_martix(input, i, depth_data, color_data, rigid_pose, intrinsic);
-			print_ith_frame_2_obj(input, i, depth_data, color_data, rigid_pose, intrinsic);
-			break;
-		}
 
 		// Visualize color and depth
 		cv::Mat colorimg(input->m_colorHeight, input->m_colorWidth, CV_8UC3, color_data);
@@ -336,12 +327,46 @@ void test_sens()
 		cv::Mat colorVis, depthVis;
 		cv::cvtColor(colorimg, colorVis, CV_RGB2BGR);
 		depthimg.convertTo(depthVis, CV_8U, 0.064f);
-		cv::imshow("color", colorVis);
-		//cv::waitKey(100000);
-		//break;
-		//cv::imshow("depth", depthVis);
-		cv::waitKey((i == 0) ? 0 : 1);
-		// remember to free the data
+		cv::Mat filterDepth = FilterDepth(depthimg);
+		cv::Mat points = ComputePoints(filterDepth, intrinsic(0, 0), intrinsic(1, 1), intrinsic(0, 2), intrinsic(1, 2));
+		cv::Mat normal = ComputeNormal(points);
+		points = ComputePoints(depthimg, intrinsic(0, 0), intrinsic(1, 1), intrinsic(0, 2), intrinsic(1, 2));
+		if (i == start_frame) {
+			poses.push_back(ml::mat4d::identity());
+		}
+		else {
+			ml::mat4d velocity = ml::mat4d::identity();
+			if (i > start_frame + 1) {
+//				velocity = poses[poses.size() - 1] * poses[poses.size() - 2].getInverse();
+			}
+			ml::mat4d relaPose = EstimatePose(prev_points, depthimg, normal, intrinsic, velocity);
+			poses.push_back(poses.back() * relaPose.getInverse());
+		}
+		std::cout << poses.back() << "\n";
+		std::vector<cv::Vec3b> colors;
+		std::vector<cv::Vec3f> pts;
+		for (int y = 0; y < depthimg.rows; y += 8) {
+			for (int x = 0; x < depthimg.cols; x += 8) {
+				cv::Vec3f& p = points.at<cv::Vec3f>(y, x);
+				if (p.val[0] != MINF) {
+					ml::vec3f pt(p.val[0], p.val[1], p.val[2]);
+					pt = poses.back() * pt;
+					pts.push_back(cv::Vec3f(pt.x,pt.y,pt.z));
+					colors.push_back(colorimg.at<cv::Vec3b>(y, x));
+				}
+			}
+		}
+		char buffer[200];
+		sprintf(buffer, "ply\\%d.ply", i);
+		std::ofstream os(buffer);
+		os << "ply\nformat ascii 1.0\nelement vertex " << colors.size() << "\nproperty float x\nproperty float y\nproperty float z\n";
+		os << "property uchar red\nproperty uchar green\nproperty uchar blue\nend_header\n";
+		for (int j = 0; j < colors.size(); ++j) {
+			os << pts[j].val[0] << " " << pts[j].val[1] << " " << pts[j].val[2] << " "
+				<< (int)colors[j].val[0] << " " << (int)colors[j].val[1] << " " << (int)colors[j].val[2] << "\n";
+		}
+		prev_normal = normal.clone();
+		prev_points = points.clone();
 		::free(color_data);
 		::free(depth_data);
 	}

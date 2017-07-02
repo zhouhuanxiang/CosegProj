@@ -19,34 +19,48 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="fileutil\sensio.cpp" />
     <ClCompile Include="GraphCut\GCoptimization.cpp" />
     <ClCompile Include="GraphCut\graph.cpp" />
     <ClCompile Include="GraphCut\LinkedBlockList.cpp" />
     <ClCompile Include="GraphCut\maxflow.cpp" />
+    <ClCompile Include="ICP\ICP.cpp" />
+    <ClCompile Include="imgproc\filter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mlibutil.cpp" />
     <ClCompile Include="PlaneExtraction\PlaneData.cpp" />
     <ClCompile Include="PlaneExtraction\PlaneExtraction.cpp" />
     <ClCompile Include="PlaneExtraction\PlaneFitter.cpp" />
     <ClCompile Include="PlaneExtraction\PlaneSegment.cpp" />
+    <ClCompile Include="sdf\Fuser.cpp" />
+    <ClCompile Include="sdf\MarchingCubes.cpp" />
+    <ClCompile Include="sdf\VoxelGrid.cpp" />
     <ClCompile Include="tests\test_ceres.cpp" />
+    <ClCompile Include="tests\test_icp.cpp" />
     <ClCompile Include="tests\test_plane.cpp" />
     <ClCompile Include="tests\test_seg.cpp" />
     <ClCompile Include="tests\test_sens.cpp" />
     <ClCompile Include="tests\test_sens_icp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="fileutil\sensio.h" />
     <ClInclude Include="GraphCut\block.h" />
     <ClInclude Include="GraphCut\energy.h" />
     <ClInclude Include="GraphCut\GCoptimization.h" />
     <ClInclude Include="GraphCut\graph.h" />
     <ClInclude Include="GraphCut\LinkedBlockList.h" />
+    <ClInclude Include="ICP\ICP.h" />
+    <ClInclude Include="imgproc\filter.h" />
     <ClInclude Include="mlibutil.h" />
     <ClInclude Include="PlaneExtraction\Plane.h" />
     <ClInclude Include="PlaneExtraction\PlaneData.h" />
     <ClInclude Include="PlaneExtraction\PlaneFitter.h" />
     <ClInclude Include="PlaneExtraction\PlaneSegment.h" />
     <ClInclude Include="PlaneExtraction\PlaneUtil.hpp" />
+    <ClInclude Include="sdf\Fuser.h" />
+    <ClInclude Include="sdf\MarchingCubes.h" />
+    <ClInclude Include="sdf\Tables.h" />
+    <ClInclude Include="sdf\VoxelGrid.h" />
     <ClInclude Include="tests\tests.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -189,6 +203,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;WIN64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

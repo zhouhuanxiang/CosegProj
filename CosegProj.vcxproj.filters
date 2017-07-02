@@ -10,6 +10,18 @@
     <Filter Include="GraphCut">
       <UniqueIdentifier>{2b208555-6f1b-406e-a99d-1e5747008058}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ICP">
+      <UniqueIdentifier>{542cadd4-7dc1-4c18-bff0-be5b50a9db9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgproc">
+      <UniqueIdentifier>{ae4407f8-5e7b-4783-bfe7-9dc0285c2164}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fileutil">
+      <UniqueIdentifier>{2ae93f0c-b3f0-4580-89af-e6f5287dd4a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdf">
+      <UniqueIdentifier>{368b0bea-c53a-4c44-9955-727862565098}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tests\test_sens.cpp">
@@ -53,6 +65,27 @@
     <ClCompile Include="tests\test_sens_icp.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="imgproc\filter.cpp">
+      <Filter>imgproc</Filter>
+    </ClCompile>
+    <ClCompile Include="ICP\ICP.cpp">
+      <Filter>ICP</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_icp.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="sdf\MarchingCubes.cpp">
+      <Filter>sdf</Filter>
+    </ClCompile>
+    <ClCompile Include="sdf\VoxelGrid.cpp">
+      <Filter>sdf</Filter>
+    </ClCompile>
+    <ClCompile Include="sdf\Fuser.cpp">
+      <Filter>sdf</Filter>
+    </ClCompile>
+    <ClCompile Include="fileutil\sensio.cpp">
+      <Filter>fileutil</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\tests.h">
@@ -89,5 +122,26 @@
       <Filter>GraphCut</Filter>
     </ClInclude>
     <ClInclude Include="mlibutil.h" />
+    <ClInclude Include="imgproc\filter.h">
+      <Filter>imgproc</Filter>
+    </ClInclude>
+    <ClInclude Include="ICP\ICP.h">
+      <Filter>ICP</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\MarchingCubes.h">
+      <Filter>sdf</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\Tables.h">
+      <Filter>sdf</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\VoxelGrid.h">
+      <Filter>sdf</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\Fuser.h">
+      <Filter>sdf</Filter>
+    </ClInclude>
+    <ClInclude Include="fileutil\sensio.h">
+      <Filter>fileutil</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
