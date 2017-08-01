@@ -1,7 +1,7 @@
 
 #include "Fuser.h"
 #include "MarchingCubes.h"
-#define VOXEL_SIZE 0.05
+#define VOXEL_SIZE 0.01
 #define DEPTH_MIN 0.4
 #define DEPTH_MAX 4
 
@@ -101,7 +101,7 @@ void Fuser::fuse(const std::string& outputFile, const std::string& name, bool de
 
 	MeshDataf mesh = MarchingCubes::doMC(*grid);
 	printf("export mesh!\n");
-	MeshIOf::saveToPLY("mesh.ply", mesh);
+	MeshIOf::saveToPLY(outputFile, mesh);
 	printf("finsih...\n");
 //	printf("%s\n", outputFile.c_str());
 //	grid->saveToFile(outputFile);

@@ -58,7 +58,7 @@ public:
 			new ProjectICPError(p, depth, normal, fx, fy, cx, cy)));
 	}
 private:
-	cv::Mat depth, normal;
+	cv::Mat& depth, normal;
 	cv::Vec3f p;
 	double fx, fy, cx, cy;
 };

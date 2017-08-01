@@ -22,6 +22,9 @@
     <Filter Include="sdf">
       <UniqueIdentifier>{368b0bea-c53a-4c44-9955-727862565098}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ColorICP">
+      <UniqueIdentifier>{6816f6e5-e7f0-4f56-887d-b5b339d4d590}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tests\test_sens.cpp">
@@ -62,9 +65,6 @@
     <ClCompile Include="tests\test_ceres.cpp">
       <Filter>tests</Filter>
     </ClCompile>
-    <ClCompile Include="tests\test_sens_icp.cpp">
-      <Filter>tests</Filter>
-    </ClCompile>
     <ClCompile Include="imgproc\filter.cpp">
       <Filter>imgproc</Filter>
     </ClCompile>
@@ -85,6 +85,12 @@
     </ClCompile>
     <ClCompile Include="fileutil\sensio.cpp">
       <Filter>fileutil</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorICP\ColorICP.cpp">
+      <Filter>ColorICP</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_color_icp.cpp">
+      <Filter>tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +148,12 @@
     </ClInclude>
     <ClInclude Include="fileutil\sensio.h">
       <Filter>fileutil</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorICP\KeyFrame.h">
+      <Filter>ColorICP</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorICP\ColorICP.h">
+      <Filter>ColorICP</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

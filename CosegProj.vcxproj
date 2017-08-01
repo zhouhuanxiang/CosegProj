@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ColorICP\ColorICP.cpp" />
     <ClCompile Include="fileutil\sensio.cpp" />
     <ClCompile Include="GraphCut\GCoptimization.cpp" />
     <ClCompile Include="GraphCut\graph.cpp" />
@@ -36,13 +37,15 @@
     <ClCompile Include="sdf\MarchingCubes.cpp" />
     <ClCompile Include="sdf\VoxelGrid.cpp" />
     <ClCompile Include="tests\test_ceres.cpp" />
+    <ClCompile Include="tests\test_color_icp.cpp" />
     <ClCompile Include="tests\test_icp.cpp" />
     <ClCompile Include="tests\test_plane.cpp" />
     <ClCompile Include="tests\test_seg.cpp" />
     <ClCompile Include="tests\test_sens.cpp" />
-    <ClCompile Include="tests\test_sens_icp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ColorICP\ColorICP.h" />
+    <ClInclude Include="ColorICP\KeyFrame.h" />
     <ClInclude Include="fileutil\sensio.h" />
     <ClInclude Include="GraphCut\block.h" />
     <ClInclude Include="GraphCut\energy.h" />
@@ -96,7 +99,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 7.0.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 8.0.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -215,9 +218,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <PostBuildEvent>
       <Command>echo copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
-copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_core2413d.dll" "$(OutDir)"
-copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_highgui2413d.dll" "$(OutDir)"
-copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_imgproc2413d.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_core2413.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_highgui2413.dll" "$(OutDir)"
+copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_imgproc2413.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_nonfree2413d.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_features2d2413d.dll" "$(OutDir)"
 copy "$(SolutionDir)\..\..\thirdparty\bin\Release\opencv_flann2413d.dll" "$(OutDir)"
@@ -240,6 +243,6 @@ copy "$(SolutionDir)\..\..\thirdparty\bin\libquadmath-0.dll" "$(OutDir)"
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 7.0.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 8.0.targets" />
   </ImportGroup>
 </Project>

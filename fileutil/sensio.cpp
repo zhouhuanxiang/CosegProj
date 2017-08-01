@@ -31,15 +31,17 @@ void Image2Sens(const char* folder, const char* name)
 		poses[i] = poses[i].getInverse();
 	}
 	for (int i = 0; i < nImages; ++i) {
-		printf("read %d of %d\n", i, nImages);
+		//printf("read %d of %d\n", i, nImages);
 		sprintf(buffer, "%s\\color%d.jpg", folder, i);
 		auto m = (cv::imread(buffer, CV_LOAD_IMAGE_UNCHANGED));
 		sprintf(buffer, "%s\\depth%d.png", folder, i);
 		auto n(cv::imread(buffer, CV_LOAD_IMAGE_UNCHANGED));
+		cv::Mat nn;
+		n.convertTo(nn, CV_16UC1);
 		if (i == 0) {
-			input->initDefault(m.cols, m.rows, n.cols, n.rows, intrinsic, intrinsic);
+		  input->initDefault(m.cols, m.rows, n.cols, n.rows, intrinsic, intrinsic);
 		}
-		input->addFrame((ml::vec3uc*)m.data, (unsigned short*)n.data, poses[i], i, i);
+		input->addFrame((ml::vec3uc*)m.data, (unsigned short*)nn.data, poses[i], i, i);
 	}
 	for (int i = 0; i < nImages; ++i) {
 	}

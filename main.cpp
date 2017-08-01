@@ -3,13 +3,11 @@
 #include "sdf/Fuser.h"
 int main()
 {
-//	Image2Sens("C:\\Users\\Jingwei Huang\\Desktop\\Recon3D\\data", "lf.sens");
-	Fuser fuser;
-	fuser.fuse("a.ply", "lf.sens", true);
-	//	MeshDataf mesh = MarchingCubes::doMC(*grid);
-//	test_icp();
-	//test_plane();
-//	test_ceres();
-//	test_sens_icp();
-	return 0;
+  //Image2Sens("../render/tmp/", "../../data/oldman.sens");
+  Fuser fuser;
+  fuser.fuse("../../data/oldman.ply", "../../data/oldman.sens", true);
+
+  //test_color_icp();
+
+  return 0;
 }
