@@ -23,13 +23,13 @@ public:
 	T pt_c[3];
 	ceres::AngleAxisRotatePoint(R, pt_w, pt_c);
 	for (int i = 0; i < 3; ++i){
-	  pt_c[i] = pt_w[i] + tr[i];
+	  pt_c[i] += tr[i];
 	}
 	T x = pt_c[0] / pt_c[2] * fx + cx;
 	T y = pt_c[1] / pt_c[2] * fy + cy;
 	int px = *(double*)&x;
 	int py = *(double*)&y;
-	// in case of boundary vertices
+	// test boundary
 	if (px < 9 || px >= width - 10 || py < 9 || py >= height - 10){
 	  residuals[0] = (T)0;
 	  return true;
@@ -42,6 +42,12 @@ public:
 	w[1] = wx * ((T)1. - wy);
 	w[2] = ((T)1. - wx) * wy;
 	w[3] = wx * wy;
+	w[0] = w[0] * w[0];
+	w[1] = w[1] * w[1];
+	w[2] = w[2] * w[2];
+	w[3] = w[3] * w[3];
+	T sum = w[0] + w[1] + w[2] + w[3];
+	w[0] /= sum; w[1] /= sum; w[2] /= sum; w[3] /= sum;
 	int rx = px + 1;
 	int ry = py + 1;
 	double c[4];
@@ -57,16 +63,16 @@ public:
 	d[2] = (double)depth_img.at<ushort>(ry, px);
 	d[3] = (double)depth_img.at<ushort>(ry, rx);
 	T depth = (d[0] * w[0] + d[1] * w[1] + d[2] * w[2] + d[3] * w[3]) * 0.001;
-
 	T depth_error = depth / pt_c[2] - 1.0;
+	// test depth consistency
 	if (abs(*(double*)&(depth_error)) < 0.01)
 	  residuals[0] = (color - pt_color) /* * (depth - pt_c[2] * 1000.0) */;
-	std::cout << *(double*)&color << " " << pt_color << " " << *(double*)residuals << "\n";
+	//std::cout << residuals[0] << "\n";
+	//std::cout << *(double*)&color << " " << pt_color << " " << *(double*)residuals << "\n";
 #else
 	residuals[0] = color - pt_color;
 #endif
-	//std::cout << *(double*)residuals << "\n";
-	if (abs(*(double*)residuals) > 30)
+	if (abs(*(double*)residuals) > 20)
 	  residuals[0] = (T)0;
 	return true;
   }
@@ -91,7 +97,7 @@ void OptimizePose(ml::SensorData* input, ml::MeshDataf& mesh, KeyFrame& kf)
   // intrinsic maxtrix
   ml::mat4d intrinsic = input->m_calibrationColor.m_intrinsic;
 
-//#pragma omp parallel for
+#pragma omp parallel for
   for (int f = 0; f < kf.frames_.size(); f++)
   {
 	//	world2camera pose
@@ -103,8 +109,8 @@ void OptimizePose(ml::SensorData* input, ml::MeshDataf& mesh, KeyFrame& kf)
 	ceres::Solver::Options options;
 	options.linear_solver_type = ceres::SPARSE_SCHUR;
 	options.minimizer_progress_to_stdout = false;
-	options.max_num_iterations = 3;
-	options.num_threads = 1;
+	options.max_num_iterations = 30;
+	options.num_threads = 8;
 
 	std::vector<int>& vts = kf.vertices_[f];
 	for (int v = 0; v < vts.size();)
@@ -125,5 +131,10 @@ void OptimizePose(ml::SensorData* input, ml::MeshDataf& mesh, KeyFrame& kf)
 	ceres::Solve(options, &problem, &summary);
 	ml::mat4d new_pose = Ceres2ML(param);
 	input->m_frames[kf.frames_[f]].setCameraToWorld(new_pose.getInverse());
+
+	if (f == 0){
+	  std::cout << f << "th frame, final cost = " << summary.final_cost << "\n";
+	  std::cout << "	       blocks = " << problem.NumResidualBlocks() << "\n";
+	}
   }
 }

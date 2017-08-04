@@ -36,17 +36,15 @@ void test_color_icp()
   KeyFrame kf;
   // select key frames
   kf.Init(input, mesh);
-  // add noise to pose matrix
-  // kf.AddPoseNoise(input);
   // if abs( point#z - depthImage#z) / depthImage#z < threshold, then add to frame 
   kf.VisibleTest(input, mesh);
 
   // now begin optimization!
   int max_iteration = 50;
   for (int outer_iteraton = 0; outer_iteraton < max_iteration; outer_iteraton++){
-	std::cout << outer_iteraton << "\n";
+	std::cout << outer_iteraton << "th iteration\n";
 	// fix pose, optimize color
-	kf.ResetColor(input, mesh, true);
+	kf.ResetColor(input, mesh, false);
 	// fix color, optimize pos
 	OptimizePose(input, mesh, kf);
 
@@ -55,6 +53,7 @@ void test_color_icp()
 	  sprintf(filename, "../../data/cup_color%d.ply", outer_iteraton);
 	  ml::MeshIOf::saveToPLY(filename, mesh);
 	}
+	std::cout << "end\n";
   }
 
   kf.ResetColor(input, mesh, true);

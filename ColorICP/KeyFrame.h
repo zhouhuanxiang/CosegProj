@@ -19,18 +19,18 @@ public:
   {
 	height = input->m_colorHeight;
 	width = input->m_colorWidth;
-
+	// select 40 keyframes
 	int kf_size = 40;
 	frames_.resize(kf_size);
 	int step = input->m_frames.size() / kf_size;
 	for (int i = 0; i < kf_size; i++){
 	  frames_[i] = step * i;
 	}
-
+	//
 	vertices_.resize(kf_size);
 	for (int i = 0; i < kf_size; i++)
 	  vertices_[i].reserve(mesh.m_Vertices.size());
-
+	// store images of key frame, so we don't need to read from SensorData everytime
 	color_images_.resize(kf_size);
 	depth_images_.resize(kf_size);
 	grey_images_.resize(kf_size);
@@ -38,36 +38,19 @@ public:
 	  ml::vec3uc* color_data = input->decompressColorAlloc(frames_[f]);
 	  unsigned short* depth_data = input->decompressDepthAlloc(frames_[f]);
 	  cv::Mat color_img(input->m_colorHeight, input->m_colorWidth, CV_8UC3, color_data);
-	  //cv::Mat gauss_img;
-	  //cv::GaussianBlur(color_img, gauss_img, cv::Size(5, 5), 0, 0);
+	  cv::Mat gauss_img;
+	  // gauss filter
+	  cv::GaussianBlur(color_img, gauss_img, cv::Size(5, 5), 0, 0);
 	  cv::Mat depth_img(input->m_depthHeight, input->m_depthWidth, CV_16UC1, depth_data);
 	  cv::Mat grey_img;
-	  cv::cvtColor(color_img, grey_img, CV_BGR2GRAY);
-	  color_img.copyTo(color_images_[f]);
+	  // simplify to grey image when calculate residuals
+	  cv::cvtColor(gauss_img, grey_img, CV_BGR2GRAY);
+	  gauss_img.copyTo(color_images_[f]);
 	  depth_img.copyTo(depth_images_[f]);
 	  grey_img.copyTo(grey_images_[f]);
+	  // free data
 	  ::free(color_data);
 	  ::free(depth_data);
-	}
-  }
-
-  void AddPoseNoise(ml::SensorData* input)
-  {
-	for (int f = 0; f < frames_.size(); f++)
-	{
-	  ml::mat4d pose = input->m_frames[frames_[f]].getCameraToWorld();
-	  ml::mat4d new_pose = pose;
-	  // add noise to 3x4 submatrix 
-	  for (int r = 0; r < 3; r++){
-		for (int c = 0; c < 3; c++){
-		  new_pose(r, c) *= 1 + (double)(rand() % 2000 - 1000) / 1000 * 0.001;
-		}
-	  }
-	  for (int r = 0; r < 3; r++){
-		double error = (double)(rand() % 2000 - 1000) / 1000 * 0.001;
-		new_pose(r, 3) += error;
-	  }
-	  input->m_frames[frames_[f]].setCameraToWorld(new_pose);
 	}
   }
 
@@ -103,10 +86,12 @@ public:
 		  double w2 = wx * (1.0 - wy);
 		  double w3 = (1.0 - wx) * wy;
 		  double w4 = wx * wy;
+		  // test continuity
 		  if (d1 && abs(d1 - d2) / d1 < 0.01 && abs(d1 - d3) / d1 < 0.01 && abs(d1 - d3) / d1 < 0.01)
 		  {
+			// bilinear interpolation
 			double d = w1 * d1 + w2 * d2 + w3 * d3 + w4 * d4;
-			// threshold is 0.005
+			// select vertices with depth error, error threshold is 0.01
 			if (abs(point.z / d - 1) < 0.01){
 			  vertices_[f].push_back(v);
 			}
@@ -116,6 +101,11 @@ public:
 	}
   }
 
+  /* 
+  with_weight 
+	when set false, (color in different frame) weight = 1
+	when set true, weight = Border * cos(Angle) / Distance^2
+  */
   void ResetColor(ml::SensorData* input, ml::MeshDataf& mesh, bool with_weight)
   {
 	// orignal model doesn't has vertex color
@@ -188,13 +178,15 @@ public:
 		w[0] /= sum; w[1] /= sum; w[2] /= sum; w[3] /= sum;
 		ml::vec4f color(0, 0, 0, 1);
 		for (int i = 0; i < 3; i++){
+		  // bilinear interpolation
 		  color[i] = w[0] * c[0][2 - i] + w[1] * c[1][2 - i] + w[2] * c[2][2 - i] + w[3] * c[3][2 - i];
 		}
 		if (with_weight){
+		  // distance between camera and vertex
 		  float distance = point.length();
-		  float tmp = border_mask.at<uchar>(py, px)
-			* abs(ml::vec3f::dot(mesh.m_Normals[vts[i]], point))
-			/ (mesh.m_Normals[vts[i]].length() * distance * distance * distance);
+		  float tmp = border_mask.at<uchar>(py, px)	// Border mask
+			* abs(ml::vec3f::dot(mesh.m_Normals[vts[i]], point))  // Angle mask
+			/ (mesh.m_Normals[vts[i]].length() * distance * distance * distance); // Depth mask
 		  color *= tmp;
 		  weight[vts[i]] += tmp;
 		}
