@@ -4,9 +4,30 @@
 #endif
 
 #include "mlibutil.h"
-#include <fstream>
 
-void Image2Sens(const char* folder, const char* name)
+#include <fstream>
+#include <random>
+
+#define STANDARD_DEVIATION 0.015
+
+void AddGaussNoise2Pose(ml::mat4f& pose){
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::normal_distribution<float> distribution(0.0, STANDARD_DEVIATION);
+  float params[6];
+  for (int i = 0; i < 6; i++){
+	params[i] = distribution(rd);
+  }
+  ml::mat4f increment = {
+	1.0,			-1 * params[2],	params[1],		params[3],
+	params[2],		1.0,			-1 * params[0],	params[4],
+	-1 * params[1], params[0],		1.0,			params[5],
+	0.0,			0.0,			0.0,			1.0
+  };
+  pose = increment * pose;
+}
+
+void Image2Sens(const char* folder, const char* name, bool noise)
 {
 	char buffer[200];
 	sprintf(buffer, "%s\\poses.txt", folder);
@@ -29,6 +50,8 @@ void Image2Sens(const char* folder, const char* name)
 			}
 		}
 		poses[i] = poses[i].getInverse();
+		if (noise)
+		  AddGaussNoise2Pose(poses[i]);
 	}
 	for (int i = 0; i < nImages; ++i) {
 		//printf("read %d of %d\n", i, nImages);

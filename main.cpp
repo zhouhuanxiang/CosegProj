@@ -1,13 +1,15 @@
 #include "tests/tests.h"
 #include "fileutil/sensio.h"
 #include "sdf/Fuser.h"
+
 int main()
 {
-  //Image2Sens("../render/tmp/", "../../data/oldman.sens");
-  Fuser fuser;
-  fuser.fuse("../../data/oldman.ply", "../../data/oldman.sens", true);
+  /*Image2Sens("../render/tmp/", "../../data/cup.sens", false);
 
-  //test_color_icp();
+  Fuser fuser;
+  fuser.fuse("../../data/cup.ply", "../../data/cup.sens", true);*/
+
+  test_color_icp();
 
   return 0;
 }

@@ -10,7 +10,7 @@
 void test_color_icp()
 {
   // Load RGB-D Data
-  ml::SensorData* input = new ml::SensorData("../../data/cup.sens");
+  ml::SensorData* input = new ml::SensorData("../../data/cup005.sens");
   std::cout << "RGB_D data loaded\n";
 
   // KinectFusion mesh
@@ -27,31 +27,37 @@ void test_color_icp()
   } while (maxEdgeLen > edgeThresh && mesh.m_Vertices.size() < 100000);
   ml::MeshIOf::saveToPLY("../../data/cup_subdivided.ply", mesh);
 #else
-  ml::MeshIOf::loadFromPLY("../../data/cup_subdivided.ply", mesh);
+  ml::MeshIOf::loadFromPLY("../../data/cup005.ply", mesh);
 #endif
   std::cout << "mesh loaded\n";
+  mesh.computeVertexNormals();
+  std::cout << "mesh vertex normal computed\n";
 
   KeyFrame kf;
   // select key frames
   kf.Init(input, mesh);
   // add noise to pose matrix
-  kf.AddPoseNoise(input);
-  // if abs( point#z - depthImage#z) < threshold, then add to frame 
+  // kf.AddPoseNoise(input);
+  // if abs( point#z - depthImage#z) / depthImage#z < threshold, then add to frame 
   kf.VisibleTest(input, mesh);
-  // key frame point color initialize
-  kf.InitColor(input, mesh);
 
   // now begin optimization!
-  int max_iteration = 1;
-  for (int outer_iteraton = 0; outer_iteraton < max_iteration; outer_iteraton++)
-  {
-	// fix color, optimize pose
+  int max_iteration = 50;
+  for (int outer_iteraton = 0; outer_iteraton < max_iteration; outer_iteraton++){
+	std::cout << outer_iteraton << "\n";
+	// fix pose, optimize color
+	kf.ResetColor(input, mesh, true);
+	// fix color, optimize pos
 	OptimizePose(input, mesh, kf);
 
-	// fix pose, optimize color
-	kf.ResetColor(input, mesh);
+	if (outer_iteraton % 10 == 1){
+	  char filename[50];
+	  sprintf(filename, "../../data/cup_color%d.ply", outer_iteraton);
+	  ml::MeshIOf::saveToPLY(filename, mesh);
+	}
   }
 
+  kf.ResetColor(input, mesh, true);
   ml::MeshIOf::saveToPLY("../../data/cup_color.ply", mesh);
 
   system("pause");
