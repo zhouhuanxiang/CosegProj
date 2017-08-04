@@ -8,9 +8,21 @@
 #include <omp.h>
 
 #include "../ICP/ICP.h"
+#include "ControlLattice.h"
 
 class KeyFrame
 {
+
+  class ControlLattice{
+  public:
+	ControlLattice(){
+	  for (int i = 0; i < 2 * (lattice_width + 1) * (lattice_height + 1); i++)
+		correction_[i] = 0.0;
+	}
+
+	double correction_[2 * (lattice_width + 1) * (lattice_height + 1)];
+  };
+
 public:
   KeyFrame() {};
   ~KeyFrame() {}
@@ -52,6 +64,8 @@ public:
 	  ::free(color_data);
 	  ::free(depth_data);
 	}
+	//
+	cls_.resize(kf_size);
   }
 
   void VisibleTest(ml::SensorData* input, ml::MeshDataf& mesh)
@@ -106,7 +120,7 @@ public:
 	when set false, (color in different frame) weight = 1
 	when set true, weight = Border * cos(Angle) / Distance^2
   */
-  void ResetColor(ml::SensorData* input, ml::MeshDataf& mesh, bool with_weight)
+  void ResetColor(ml::SensorData* input, ml::MeshDataf& mesh, bool with_weight, bool non_rigid)
   {
 	// orignal model doesn't has vertex color
 	mesh.m_Colors.clear();
@@ -149,6 +163,10 @@ public:
 		ml::vec3f point = pose * mesh.m_Vertices[vts[i]];
 		double x = (point.x / point.z) * intrinsic(0, 0) + intrinsic(0, 2);
 		double y = (point.y / point.z) * intrinsic(1, 1) + intrinsic(1, 2);
+		// nonrigid correct
+		if (non_rigid){
+		  NonRigidAdjust(x, y, cls_[f].correction_, width, height);
+		}
 		int px = static_cast<int>(x);
 		int py = static_cast<int>(y);
 		// in case of boundary vertices
@@ -209,7 +227,7 @@ public:
   std::vector<cv::Mat> color_images_;
   std::vector<cv::Mat> depth_images_;
   std::vector<cv::Mat> grey_images_;
-
+  std::vector<ControlLattice> cls_;
   int height, width;
 };
 

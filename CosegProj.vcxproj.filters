@@ -92,6 +92,12 @@
     <ClCompile Include="tests\test_color_icp.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="ColorICP\NonRigidColorICP.cpp">
+      <Filter>ColorICP</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorICP\ControlLattice.cpp">
+      <Filter>ColorICP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\tests.h">
@@ -153,6 +159,12 @@
       <Filter>ColorICP</Filter>
     </ClInclude>
     <ClInclude Include="ColorICP\ColorICP.h">
+      <Filter>ColorICP</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorICP\ControlLattice.h">
+      <Filter>ColorICP</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorICP\NonRigidColorICP.h">
       <Filter>ColorICP</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,6 +4,7 @@
 
 #include "ColorICP/KeyFrame.h"
 #include "ColorICP/ColorICP.h"
+#include "ColorICP/NonRigidColorICP.h"
 
 //#define NEED_SUBDIVISION
 
@@ -41,12 +42,17 @@ void test_color_icp()
 
   // now begin optimization!
   int max_iteration = 50;
+  // use non-rigid correction or not
+  bool non_rigid = true;
   for (int outer_iteraton = 0; outer_iteraton < max_iteration; outer_iteraton++){
 	std::cout << outer_iteraton << "th iteration\n";
 	// fix pose, optimize color
-	kf.ResetColor(input, mesh, false);
+	kf.ResetColor(input, mesh, false, non_rigid);
 	// fix color, optimize pos
-	OptimizePose(input, mesh, kf);
+	if (non_rigid)
+	  NonRigidOptimizePose(input, mesh, kf);
+	else
+	  OptimizePose(input, mesh, kf);
 
 	if (outer_iteraton % 10 == 1){
 	  char filename[50];
@@ -56,7 +62,7 @@ void test_color_icp()
 	std::cout << "end\n";
   }
 
-  kf.ResetColor(input, mesh, true);
+  kf.ResetColor(input, mesh, true, non_rigid);
   ml::MeshIOf::saveToPLY("../../data/cup_color.ply", mesh);
 
   system("pause");

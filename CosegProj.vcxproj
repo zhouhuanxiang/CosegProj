@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ColorICP\ColorICP.cpp" />
+    <ClCompile Include="ColorICP\ControlLattice.cpp" />
+    <ClCompile Include="ColorICP\NonRigidColorICP.cpp" />
     <ClCompile Include="fileutil\sensio.cpp" />
     <ClCompile Include="GraphCut\GCoptimization.cpp" />
     <ClCompile Include="GraphCut\graph.cpp" />
@@ -45,7 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ColorICP\ColorICP.h" />
+    <ClInclude Include="ColorICP\ControlLattice.h" />
     <ClInclude Include="ColorICP\KeyFrame.h" />
+    <ClInclude Include="ColorICP\NonRigidColorICP.h" />
     <ClInclude Include="fileutil\sensio.h" />
     <ClInclude Include="GraphCut\block.h" />
     <ClInclude Include="GraphCut\energy.h" />
