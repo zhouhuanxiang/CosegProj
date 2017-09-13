@@ -23,6 +23,9 @@
     <ClCompile Include="ColorICP\ControlLattice.cpp" />
     <ClCompile Include="ColorICP\NonRigidColorICP.cpp" />
     <ClCompile Include="fileutil\sensio.cpp" />
+    <ClCompile Include="GLRender\RenderGLHelper.cpp" />
+    <ClCompile Include="GLRender\RenderPlatform.cpp" />
+    <ClCompile Include="GLRender\shader_src.cc" />
     <ClCompile Include="GraphCut\GCoptimization.cpp" />
     <ClCompile Include="GraphCut\graph.cpp" />
     <ClCompile Include="GraphCut\LinkedBlockList.cpp" />
@@ -44,6 +47,7 @@
     <ClCompile Include="tests\test_plane.cpp" />
     <ClCompile Include="tests\test_seg.cpp" />
     <ClCompile Include="tests\test_sens.cpp" />
+    <ClCompile Include="UVAtlas\mUVAtlas.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ColorICP\ColorICP.h" />
@@ -51,6 +55,11 @@
     <ClInclude Include="ColorICP\KeyFrame.h" />
     <ClInclude Include="ColorICP\NonRigidColorICP.h" />
     <ClInclude Include="fileutil\sensio.h" />
+    <ClInclude Include="GLRender\RenderGLColor.h" />
+    <ClInclude Include="GLRender\RenderGLHelper.h" />
+    <ClInclude Include="GLRender\RenderHelper.h" />
+    <ClInclude Include="GLRender\RenderPlatform.h" />
+    <ClInclude Include="GLRender\shader_src.h" />
     <ClInclude Include="GraphCut\block.h" />
     <ClInclude Include="GraphCut\energy.h" />
     <ClInclude Include="GraphCut\GCoptimization.h" />
@@ -69,6 +78,7 @@
     <ClInclude Include="sdf\Tables.h" />
     <ClInclude Include="sdf\VoxelGrid.h" />
     <ClInclude Include="tests\tests.h" />
+    <ClInclude Include="UVAtlas\mUVAtlas.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{49AAA91A-E0EA-4BC2-8983-2DB41AC39776}</ProjectGuid>
@@ -123,12 +133,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir);$(SolutionDir)../../thirdparty/ceres-solver/include;$(SolutionDir)../../thirdparty/OpenCV/include;$(SolutionDir)../../thirdparty/mLib/include;$(SolutionDir)../../thirdparty;$(SolutionDir)../../thirdparty/glm;$(SolutionDir)../../thirdparty/Eigen;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)../../thirdparty/OpenCV/lib;$(SolutionDir)../../thirdparty/ceres-solver/lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)../../thirdparty/ceres-solver/include;$(SolutionDir)../../thirdparty/OpenCV/include;$(SolutionDir)../../thirdparty/mLib/include;$(SolutionDir)../../thirdparty;$(SolutionDir)../../thirdparty/glm;$(SolutionDir)../../thirdparty/Eigen;$(SolutionDir)../../thirdparty/uvatlas/UVAtlas-master/UVAtlas/inc;$(SolutionDir)../../thirdparty/uvatlas/DirectXMesh;$(SolutionDir)../../thirdparty/uvatlas/DirectXTex;$(SolutionDir)../../thirdparty/glew/include;$(SolutionDir)../../thirdparty/FreeImage;$(SolutionDir)../../thirdparty/glfw/include;$(SolutionDir)../../thirdparty/freeglut/include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)../../thirdparty/OpenCV/lib;$(SolutionDir)../../thirdparty/ceres-solver/lib;$(SolutionDir)../../thirdparty\uvatlas\UVAtlas-master\UVAtlas\Bin\Desktop_2013\x64\Debug;$(SolutionDir)../../thirdparty\uvatlas\DirectXMesh\DirectXMesh\Bin\Desktop_2013\x64\Debug;$(SolutionDir)../../thirdparty\uvatlas\DirectXTex\DirectXTex\Bin\Desktop_2013\x64\Debug;$(SolutionDir)../../thirdparty/glew/lib;$(SolutionDir)../../thirdparty/freeglut/lib/x64;$(SolutionDir)../../thirdparty/FreeImage;$(SolutionDir)../../thirdparty/glfw/lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir);$(SolutionDir)../../thirdparty/ceres-solver/include;$(SolutionDir)../../thirdparty/OpenCV/include;$(SolutionDir)../../thirdparty/mLib/include;$(SolutionDir)../../thirdparty;$(SolutionDir)../../thirdparty/glm;$(SolutionDir)../../thirdparty/Eigen;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)../../thirdparty/OpenCV/lib;$(SolutionDir)../../thirdparty/ceres-solver/lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)../../thirdparty/ceres-solver/include;$(SolutionDir)../../thirdparty/OpenCV/include;$(SolutionDir)../../thirdparty/mLib/include;$(SolutionDir)../../thirdparty;$(SolutionDir)../../thirdparty/glew/include;$(SolutionDir)../../thirdparty/glm;$(SolutionDir)../../thirdparty/Eigen;$(SolutionDir)../../thirdparty/uvatlas/UVAtlas-master/UVAtlas/inc;$(SolutionDir)../../thirdparty/uvatlas/DirectXMesh;$(SolutionDir)../../thirdparty/uvatlas/DirectXTex;$(SolutionDir)../../thirdparty/FreeImage;$(SolutionDir)../../thirdparty/freeglut/include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)../../thirdparty/OpenCV/lib;$(SolutionDir)../../thirdparty/ceres-solver/lib;$(SolutionDir)../../thirdparty\uvatlas\UVAtlas-master\UVAtlas\Bin\Desktop_2013\x64\Release;$(SolutionDir)../../thirdparty\uvatlas\DirectXMesh\DirectXMesh\Bin\Desktop_2013\x64\Release;$(SolutionDir)../../thirdparty\uvatlas\DirectXTex\DirectXTex\Bin\Desktop_2013\x64\Release;$(SolutionDir)../../thirdparty\glew\lib;$(SolutionDir)../../thirdparty/freeglut/lib/x64;$(SolutionDir)../../thirdparty/FreeImage;$(SolutionDir)../../thirdparty/glfw/lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -155,7 +165,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>libglog_staticd.lib;ceresd.lib;opencv_core2413d.lib;opencv_highgui2413d.lib;opencv_imgproc2413d.lib;opencv_nonfree2413d.lib;opencv_features2d2413d.lib;opencv_calib3d2413d.lib;opencv_flann2413d.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libglog_staticd.lib;ceresd.lib;opencv_core2413d.lib;opencv_highgui2413d.lib;opencv_imgproc2413d.lib;opencv_nonfree2413d.lib;opencv_features2d2413d.lib;opencv_calib3d2413d.lib;opencv_flann2413d.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;DirectXTex.lib;DirectXMesh.lib;UVAtlas.lib;glew32.lib;FreeImaged.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>echo copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
@@ -217,7 +227,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>libglog_static.lib;ceres.lib;opencv_core2413.lib;opencv_highgui2413.lib;opencv_imgproc2413.lib;opencv_nonfree2413.lib;opencv_features2d2413.lib;opencv_calib3d2413.lib;opencv_flann2413.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libglog_static.lib;ceres.lib;opencv_core2413.lib;opencv_highgui2413.lib;opencv_imgproc2413.lib;opencv_nonfree2413.lib;opencv_features2d2413.lib;opencv_calib3d2413.lib;opencv_flann2413.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;DirectXTex.lib;DirectXMesh.lib;UVAtlas.lib;glew32.lib;FreeImage.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>echo copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"

@@ -32,7 +32,7 @@ public:
 	height = input->m_colorHeight;
 	width = input->m_colorWidth;
 	// select 40 keyframes
-	int kf_size = 40;
+	int kf_size = 60;
 	frames_.resize(kf_size);
 	int step = input->m_frames.size() / kf_size;
 	for (int i = 0; i < kf_size; i++){
@@ -56,8 +56,8 @@ public:
 	  cv::Mat depth_img(input->m_depthHeight, input->m_depthWidth, CV_16UC1, depth_data);
 	  cv::Mat grey_img;
 	  // simplify to grey image when calculate residuals
-	  cv::cvtColor(gauss_img, grey_img, CV_BGR2GRAY);
-	  gauss_img.copyTo(color_images_[f]);
+	  cv::cvtColor(color_img, grey_img, CV_BGR2GRAY);
+	  color_img.copyTo(color_images_[f]);
 	  depth_img.copyTo(depth_images_[f]);
 	  grey_img.copyTo(grey_images_[f]);
 	  // free data
@@ -70,7 +70,9 @@ public:
 
   void VisibleTest(ml::SensorData* input, ml::MeshDataf& mesh)
   {
-	for (int f = 0; f < frames_.size(); f++)
+	//for (int f = 0; f < frames_.size(); f++)
+	  // for test
+	for (int f = 0; f < 1; f++)
 	{
 	  // world2camera pose
 	  ml::mat4d pose = input->m_frames[frames_[f]].getCameraToWorld().getInverse();
@@ -195,9 +197,9 @@ public:
 		double sum = w[0] + w[1] + w[2] + w[3];
 		w[0] /= sum; w[1] /= sum; w[2] /= sum; w[3] /= sum;
 		ml::vec4f color(0, 0, 0, 1);
-		for (int i = 0; i < 3; i++){
+		for (int j = 0; j < 3; j++){
 		  // bilinear interpolation
-		  color[i] = w[0] * c[0][2 - i] + w[1] * c[1][2 - i] + w[2] * c[2][2 - i] + w[3] * c[3][2 - i];
+		  color[j] = w[0] * c[0][2 - j] + w[1] * c[1][2 - j] + w[2] * c[2][2 - j] + w[3] * c[3][2 - j];
 		}
 		if (with_weight){
 		  // distance between camera and vertex

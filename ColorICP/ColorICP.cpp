@@ -85,7 +85,7 @@ public:
 private:
   cv::Mat& grey_img;
   cv::Mat& depth_img;
-  double pt_color; // (grey color)
+  double pt_color; // (grey scale)
   ml::vec3f point;
   int colorWidth;
   double fx, fy, cx, cy;

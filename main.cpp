@@ -1,15 +1,20 @@
 #include "tests/tests.h"
 #include "fileutil/sensio.h"
 #include "sdf/Fuser.h"
+#include "GLRender/RenderPlatform.h"
+#include "UVAtlas/mUVAtlas.h"
 
-int main()
+int main(int argc, char **argv)
 {
-  /*Image2Sens("../render/tmp/", "../../data/cup.sens", false);
+	RenderPlatform platform(texture_width, texture_height);
+	platform.InitDevice(&argc, argv);
 
-  Fuser fuser;
-  fuser.fuse("../../data/cup.ply", "../../data/cup.sens", true);*/
+	/*Image2Sens("../render/tmp/", "../../data/cup.sens", false);
 
-  test_color_icp();
+	Fuser fuser;
+	fuser.fuse("../../data/cup.ply", "../../data/cup.sens", true);*/
 
-  return 0;
+	test_color_icp();
+
+	return 0;
 }

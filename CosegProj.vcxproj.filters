@@ -25,6 +25,12 @@
     <Filter Include="ColorICP">
       <UniqueIdentifier>{6816f6e5-e7f0-4f56-887d-b5b339d4d590}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UVAtlas">
+      <UniqueIdentifier>{229f13aa-f21f-44b3-95e1-510f24647e19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GLRender">
+      <UniqueIdentifier>{076bc878-0240-4a40-ad6f-00726beb54f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tests\test_sens.cpp">
@@ -98,6 +104,18 @@
     <ClCompile Include="ColorICP\ControlLattice.cpp">
       <Filter>ColorICP</Filter>
     </ClCompile>
+    <ClCompile Include="UVAtlas\mUVAtlas.cpp">
+      <Filter>UVAtlas</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRender\RenderGLHelper.cpp">
+      <Filter>GLRender</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRender\RenderPlatform.cpp">
+      <Filter>GLRender</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRender\shader_src.cc">
+      <Filter>GLRender</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\tests.h">
@@ -166,6 +184,24 @@
     </ClInclude>
     <ClInclude Include="ColorICP\NonRigidColorICP.h">
       <Filter>ColorICP</Filter>
+    </ClInclude>
+    <ClInclude Include="UVAtlas\mUVAtlas.h">
+      <Filter>UVAtlas</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRender\RenderGLColor.h">
+      <Filter>GLRender</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRender\RenderGLHelper.h">
+      <Filter>GLRender</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRender\RenderHelper.h">
+      <Filter>GLRender</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRender\RenderPlatform.h">
+      <Filter>GLRender</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRender\shader_src.h">
+      <Filter>GLRender</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
