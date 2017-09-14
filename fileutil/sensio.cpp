@@ -71,6 +71,36 @@ void Image2Sens(const char* folder, const char* name, bool noise)
 	input->saveToFile(name);
 }
 
+void Sens2SensNoise(const std::string& outputFile, const std::string& inputFile, float noise)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::normal_distribution<float> distribution(0.0, STANDARD_DEVIATION);
+
+	ml::SensorData* input = new ml::SensorData(inputFile.c_str());
+	const unsigned int imageWidth = input->m_depthWidth;
+	const unsigned int imageHeight = input->m_depthHeight;
+
+	ml::SensorData* output = new ml::SensorData();
+
+	for (int iter = 0; iter < input->m_frames.size(); iter += 1) {
+		printf("read %d of %d\n", iter, input->m_frames.size());
+		unsigned short* depth_data = input->decompressDepthAlloc(iter);
+		ml::vec3uc* color_data = input->decompressColorAlloc(iter);
+		for (int i = 0; i < input->m_depthHeight; ++i) {
+			for (int j = 0; j < input->m_depthWidth; ++j) {
+				depth_data[i * input->m_depthWidth + j] *= distribution(rd) + 1;
+			}
+		}
+		if (iter == 0)
+			output->initDefault(imageWidth, imageHeight, imageWidth, imageHeight, input->m_calibrationColor.m_intrinsic, input->m_calibrationColor.m_intrinsic);
+		output->addFrame((ml::vec3uc*)color_data, (unsigned short*)depth_data, input->m_frames[iter].getCameraToWorld(), iter, iter);
+		::free(depth_data);
+		::free(color_data);
+	}
+	output->saveToFile(outputFile);
+}
+
 void Sens2Image(const char* name, const char* folder)
 {
 

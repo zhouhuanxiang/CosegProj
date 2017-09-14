@@ -13,7 +13,7 @@
 void test_color_icp()
 {
 	// Load RGB-D Data
-	ml::SensorData* input = new ml::SensorData("../../data/cup.sens");
+	ml::SensorData* input = new ml::SensorData("../../data/depth/cup_noi015.sens");
 	std::cout << "RGB_D data loaded\n";
 
 	// KinectFusion mesh
@@ -30,7 +30,7 @@ void test_color_icp()
 	} while (maxEdgeLen > edgeThresh && mesh.m_Vertices.size() < 100000);
 	ml::MeshIOf::saveToPLY("../../data/cup_subdivided.ply", mesh);
 #else
-	ml::MeshIOf::loadFromPLY("../../data/cup_sim1.ply", mesh);
+	ml::MeshIOf::loadFromPLY("../../data/depth/cup_noi015_sim0.ply", mesh);
 #endif
 	std::cout << "mesh loaded\n";
 	mesh.computeVertexNormals();

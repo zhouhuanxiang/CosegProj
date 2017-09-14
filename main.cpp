@@ -9,10 +9,13 @@ int main(int argc, char **argv)
 	RenderPlatform platform(texture_width, texture_height);
 	platform.InitDevice(&argc, argv);
 
-	/*Image2Sens("../render/tmp/", "../../data/cup.sens", false);
+	//Image2Sens("../render/tmp/", "../../data/cup.sens", false);
+
+	// depth noise
+	//Sens2SensNoise("../../data/depth/cup_noi015.sens", "../../data/perfect/cup.sens");
 
 	Fuser fuser;
-	fuser.fuse("../../data/cup.ply", "../../data/cup.sens", true);*/
+	//fuser.fuse("../../data/depth/cup_noi015.ply", "../../data/depth/cup_noi015.sens", true);
 
 	test_color_icp();
 
